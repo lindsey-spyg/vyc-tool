@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>VYC Proposal Generator</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=Montserrat:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #192750;
+    --navy-mid: #1e3260;
+    --gold: #c9a96e;
+    --gold-light: #e8d5b0;
+    --cream: #FFFAF6;
+    --grey: #4A4A4A;
+    --border: #ddd5c8;
+    --light-bg: #f5f0e8;
+    --green: #2a7a4a;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Montserrat', sans-serif; background: var(--cream); color: var(--grey); min-height: 100vh; }
+  .app { max-width: 960px; margin: 0 auto; padding: 40px 32px; }
+  .header { display: flex; align-items: flex-end; justify-content: space-between; border-bottom: 2px solid var(--navy); padding-bottom: 20px; margin-bottom: 36px; }
+  .header-left .eyebrow { font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 6px; }
+  .header-left h1 { font-family: 'Cormorant Garamond', serif; font-size: 34px; font-weight: 600; color: var(--navy); line-height: 1.1; }
+  .header-right { font-size: 11px; color: #aaa; font-weight: 300; text-align: right; }
+  .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 16px; }
+  .form-group { display: flex; flex-direction: column; gap: 6px; }
+  .form-group.full { grid-column: 1 / -1; }
+  .form-group label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--navy); }
+  .form-group input, .form-group select, .form-group textarea { font-family: 'Montserrat', sans-serif; font-size: 13px; padding: 10px 14px; border: 1px solid var(--border); background: white; color: var(--grey); outline: none; transition: border-color 0.2s; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--navy); }
+  .form-group textarea { resize: vertical; min-height: 70px; }
+  .section-label { font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin: 20px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); grid-column: 1 / -1; }
+  .generate-btn { width: 100%; background: var(--navy); color: var(--cream); border: none; padding: 16px; font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
+  .generate-btn:hover { background: var(--navy-mid); }
+  .generate-btn:disabled { background: #aaa; cursor: not-allowed; }
+  .loading { text-align: center; padding: 48px; color: var(--navy); }
+  .loading-dots { display: inline-flex; gap: 6px; margin-top: 12px; }
+  .loading-dots span { width: 8px; height: 8px; background: var(--gold); border-radius: 50%; animation: bounce 1.2s infinite; }
+  .loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+  .loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+  @keyframes bounce { 0%, 80%, 100% { transform: scale(0); } 40% { transform: scale(1); } }
+  .output { margin-top: 36px; border-top: 2px solid var(--navy); padding-top: 32px; }
+  .output-section { margin-bottom: 32px; }
+  .output-title { font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin-bottom: 16px; }
+  .vessel-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+  .vessel-card { background: white; border: 1px solid var(--border); display: flex; flex-direction: column; }
+  .vessel-tier { font-size: 8px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; padding: 7px 14px; color: var(--cream); }
+  .vessel-card.tier-1 .vessel-tier { background: var(--navy); }
+  .vessel-card.tier-2 .vessel-tier { background: #3a5a3a; }
+  .vessel-card.tier-3 .vessel-tier { background: #7a5a2a; }
+  .vessel-card-body { padding: 16px; flex: 1; display: flex; flex-direction: column; }
+  .vessel-name { font-family: 'Cormorant Garamond', serif; font-size: 18px; font-weight: 600; color: var(--navy); margin-bottom: 3px; }
+  .vessel-capacity { font-size: 10px; font-weight: 500; letter-spacing: 1px; text-transform: uppercase; color: #aaa; margin-bottom: 10px; }
+  .vessel-price { font-size: 22px; font-weight: 600; color: var(--navy); font-family: 'Cormorant Garamond', serif; margin-bottom: 6px; }
+  .vessel-margin { display: flex; gap: 6px; margin-bottom: 6px; flex-wrap: wrap; }
+  .margin-pill { font-size: 10px; font-weight: 600; padding: 2px 8px; border-radius: 2px; }
+  .margin-pill.good { background: #e8f5ee; color: var(--green); }
+  .margin-pill.ok { background: #fff8e8; color: #8a6a00; }
+  .margin-pill.low { background: #fdf0f0; color: #aa3333; }
+  .vessel-pricing-note { font-size: 10px; color: #aaa; margin-bottom: 12px; font-style: italic; }
+  .vessel-why { font-size: 12px; color: var(--grey); line-height: 1.7; margin-bottom: 12px; flex: 1; }
+  .vessel-tags { display: flex; gap: 4px; flex-wrap: wrap; }
+  .vessel-tag { font-size: 8px; font-weight: 600; letter-spacing: 1px; text-transform: uppercase; padding: 2px 8px; background: var(--light-bg); color: var(--navy); }
+  .margin-legend { display: flex; gap: 16px; margin-bottom: 16px; font-size: 10px; color: #999; flex-wrap: wrap; }
+  .margin-legend span { display: flex; align-items: center; gap: 5px; }
+  .email-block { background: white; border: 1px solid var(--border); border-top: 3px solid var(--gold); }
+  .email-header { padding: 14px 20px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; }
+  .email-subject-label { font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--gold); }
+  .email-subject-text { font-family: 'Cormorant Garamond', serif; font-size: 17px; font-weight: 600; color: var(--navy); margin-top: 3px; }
+  .copy-btn { background: var(--navy); color: var(--cream); border: none; padding: 8px 16px; font-family: 'Montserrat', sans-serif; font-size: 9px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; cursor: pointer; white-space: nowrap; transition: background 0.2s; }
+  .copy-btn:hover { background: var(--gold); color: var(--navy); }
+  .copy-btn.copied { background: var(--green); }
+  .email-body { padding: 24px; font-size: 13px; line-height: 1.85; color: var(--grey); white-space: pre-line; }
+  .error { background: #fff5f5; border: 1px solid #ffcccc; padding: 16px 20px; color: #cc0000; font-size: 13px; margin-top: 16px; }
+  .section-divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="header-left">
+      <div class="eyebrow">Vallarta Yacht Company</div>
+      <h1>Proposal Generator</h1>
+    </div>
+    <div class="header-right">Live Pricing + Margin Ranking<br>VYC Internal Tool</div>
+  </div>
+
+  <div class="form-grid">
+    <div class="section-label">Client Information</div>
+    <div class="form-group">
+      <label>Client Name*</label>
+      <input type="text" id="clientName" placeholder="e.g. Alli Johnson" />
+    </div>
+    <div class="form-group">
+      <label>Email</label>
+      <input type="email" id="clientEmail" placeholder="e.g. alli@email.com" />
+    </div>
+    <div class="form-group">
+      <label>Phone</label>
+      <input type="text" id="clientPhone" placeholder="e.g. 555-123-4567" />
+    </div>
+    <div class="form-group">
+      <label>Charter Date</label>
+      <input type="text" id="charterDate" placeholder="e.g. Feb 14, 2027 or flexible" />
+    </div>
+    <div class="form-group">
+      <label>Estimated No. of Guests*</label>
+      <input type="number" id="guestCount" placeholder="e.g. 10" min="1" />
+    </div>
+    <div class="form-group">
+      <label>Where are they staying?</label>
+      <input type="text" id="location" placeholder="e.g. Hotel Mousai, Punta Mita" />
+    </div>
+
+    <div class="section-label">Experience & Preferences</div>
+    <div class="form-group full">
+      <label>What kind of experience are they looking for?*</label>
+      <select id="experienceType">
+        <option value="">Select...</option>
+        <option value="celebration">Special celebration (wedding, bachelor/bachelorette, etc.)</option>
+        <option value="adventure">Full adventure with snorkeling, water toys, and high-excitement</option>
+        <option value="relaxed">A relaxing cruise of the bay with light provisions</option>
+        <option value="overnight">Overnight excursion</option>
+        <option value="bareboat">Just a day on the water. No food or drink needed</option>
+        <option value="other">Something else</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Charter Duration</label>
+      <select id="duration">
+        <option value="6">6 hours (recommended)</option>
+        <option value="4">4 hours</option>
+        <option value="8">8 hours</option>
+        <option value="overnight">Overnight or multiple days</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Vessel Preference</label>
+      <select id="vesselType">
+        <option value="">No preference</option>
+        <option value="yacht">Yacht</option>
+        <option value="catamaran">Catamaran</option>
+      </select>
+    </div>
+    <div class="form-group full">
+      <label>Additional Notes (occasion, activities, kids, budget signals, etc.)</label>
+      <textarea id="notes" placeholder="e.g. Bachelorette party, wants to beach hop and snorkel, 2 kids aged 4 and 8, budget conscious"></textarea>
+    </div>
+  </div>
+
+  <button class="generate-btn" id="generateBtn" onclick="generateProposal()">
+    Generate Tiered Recommendations & Proposal Email
+  </button>
+
+  <div id="errorMsg" class="error" style="display:none;"></div>
+
+  <div id="loading" class="loading" style="display:none;">
+    <div style="font-family:'Cormorant Garamond',serif;font-size:20px;color:var(--navy);">Matching vessels, fetching live pricing, drafting proposal...</div>
+    <div class="loading-dots"><span></span><span></span><span></span></div>
+  </div>
+
+  <div id="output" class="output" style="display:none;">
+    <div class="output-section">
+      <div class="output-title">Tiered Recommendations</div>
+      <div class="margin-legend">
+        <span><span class="margin-pill good" style="padding:1px 6px;">36%</span> Strong margin (30%+)</span>
+        <span><span class="margin-pill ok" style="padding:1px 6px;">22%</span> Moderate margin (15-29%)</span>
+        <span><span class="margin-pill low" style="padding:1px 6px;">10%</span> Low margin (under 15%)</span>
+      </div>
+      <div class="vessel-cards" id="vesselCards"></div>
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="output-section">
+      <div class="output-title">Draft Proposal Email</div>
+      <div class="email-block">
+        <div class="email-header">
+          <div>
+            <div class="email-subject-label">Subject</div>
+            <div class="email-subject-text" id="emailSubject"></div>
+          </div>
+          <button class="copy-btn" id="copyBtn" onclick="copyEmail()">Copy Email</button>
+        </div>
+        <div class="email-body" id="emailBody"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const PRICING_API = 'https://script.google.com/macros/s/AKfycbxmI6NiUOMgrk8w-DV_atpWwaZ6EKqa76zcyDyKGt3hjaI5Kx8n58y3F86Jp9bPQtVJ/exec';
+
+const VESSEL_DATA = `
+VESSEL CATALOG — VALLARTA YACHT COMPANY
+
+SHEET NAME PREFIXES — use these exactly in the sheetName field:
+47' Fountaine Pajot → "47' Fountaine"
+40' Lagoon (I or II) → "40' Lagoon I" or "40' Lagoon' II"
+42' Lagoon (I or II) → "42' Lagoon I" or "42' Lagoon II"
+47' Pajot → "47' Pajot"
+40' Viking → "40' Viking"
+50' Marquis → "50' Marquis"
+51' Leopard → "51' Leopard"
+57' Bertram → "57' Bertram"
+81' Sailboat → "81' Chaote"
+85' Hot Tub Azimut → "85' Hot Tub Azimut"
+90' Cheoy Lee → "90' Cheoy Lee"
+122' Hatteras → "122' Hatteras"
+27' Sea Ray → "27' Sea Ray"
+43' Lagoon Power → "43' Lagoon Power"
+Lagoon 450F → "450F Lagoon"
+Azimut 54 → "54' Azimut"
+75' Hatteras → "75' Hatteras"
+85' Azimut → "85' Azimut"
+44' Leopard → "44' Leopard"
+47' Leopard → "47' Leopard"
+52' Sea Ray → "52' Sea Ray"
+56' Catamaran → "56' Catamaran"
+59' Azimut → "59' Azimut"
+60' Custom Cat → "60' Catamaran"
+65' Vitech → "65' Vitech"
+74' Sunseeker → "74' Sunseeker"
+90' Grand Canyon Cat → "90' Cat"
+70' Azimut Blue → "70' Azimut Blue"
+25' Sea Ray → "25' Sea Ray"
+64' Mikelson → "64' Mikelson"
+92' President → "92' President"
+
+VESSELS:
+47' FOUNTAINE PAJOT | Cap: 18 | Catamaran | Best for: romance, celebrations, luxury
+Included: Private chef gourmet meals, premium open bar, snorkel/paddleboards/lily pad/rods/dinghy
+POV: Five star luxury on the water. Crew is incredibly attentive, food and beverage are worth the price alone, and the dinghy gets your group to the most secluded beaches.
+
+40' LAGOON I & II | Cap: 18 | Catamaran | Best for: bachelorette/bachelor, families, VALUE
+Included: Guac/chips/fruit/ceviche, welcome margaritas/24 beers/rum/tequila/vodka, snorkel/paddleboards/fishing rods/lily pad
+POV: The best deal on the water if you want an exceptional day without the full dining menu or premium bar.
+
+42' LAGOON I & II | Cap: 20 | Catamaran | Best for: bachelorette/bachelor, families, VALUE
+Included: Ceviche/guac/chips/fruit, welcome margaritas/24 beers/rum/tequila/vodka, snorkel/paddleboards/fishing rods/lily pad
+POV: Spacious catamaran great for families and celebrations. Simple, fun, great value.
+
+47' PAJOT | Cap: 16 | Catamaran | Best for: luxury, corporate, romance
+Included: Multi-course dining (seafood/pasta/steak/dessert), premium open bar with mixologist, snorkel/paddleboards/fishing rods/lily pad/dinghy
+POV: The newest and most enticing experience on the bay. Private chef, mixologist, dinghy access to places most guests never see.
+
+92' PRESIDENT | Cap: 28 | Motor Yacht | Best for: parties, adventure, high energy
+Included: Cold appetizers, 36 beers & tequila, kayak/paddleboard/snorkel/banana boat
+Highlights: 4 levels, water slide off 3rd story, hot tub
+POV: Maximum energy, water toys, a slide, and a hot tub. The ultimate party boat.
+
+64' MIKELSON | Cap: 15 | Motor Yacht | Best for: fishing, adventure
+Included: Ceviche/guac/fruit, beer/house cocktails, snorkel/kayak, full sport fishing setup, dinghy
+POV: The go-to for serious fishing. Pompanette chair, Penn reels, 8 rods. The dinghy also gives beach access.
+
+40' VIKING | Cap: 15 | Sport Fishing | Best for: fishing
+Included: Water/ice/sodas, beer, live bait, full fishing setup
+POV: Focused sport fishing with live bait and a crew that knows the best spots.
+
+50' MARQUIS | Cap: 12 | Motor Yacht | Best for: small groups, celebrations, sunset
+Included: Ceviche & guac / canapés (evening), 4 beers per person
+POV: Sleek and polished for smaller groups. Great for sunset experiences.
+
+51' LEOPARD | Cap: 30 | Power Catamaran | Best for: larger groups, bachelorette, corporate
+Included: Empanadas/sandwiches/dessert/hummus, full spirits bar
+Highlights: 25ft width, exceptional deck space
+POV: One of the widest catamarans on the bay. Great for larger groups who want space and a solid bar.
+
+57' BERTRAM | Cap: 35 | Motor Yacht | Best for: BYOF groups, parties
+Included: Ice & water only, snorkel/paddleboards/fishing rods, full sound system
+POV: Great for groups who want to bring their own food and drinks.
+
+81' SAILBOAT (Chaote) | Cap: 50 | Sailboat | Best for: celebrations, larger groups
+Included: Ceviche/guac/fruit, 24 beers/tequila/rum/vodka, fishing/snorkel/paddleboards/lily pad
+Highlights: Hot tub, eFoil available
+POV: Beautiful sailboat with a hot tub. Great for larger groups.
+
+85' HOT TUB AZIMUT | Cap: 25 | Motor Yacht | Best for: parties, families, adventure
+Included: Fruit/guac/ceviche/tuna/sashimi, 24 beers, snorkel/paddleboards/fishing rods/lily pad
+Highlights: Hot tub AND water slide, menu scales with duration
+POV: Hot tub and water slide. Great for groups who want fun with some refinement.
+
+90' CHEOY LEE | Cap: 50 | Motor Yacht | Best for: parties, corporate, weddings
+Included: Guac/chips/ceviche, full open bar (6 drinks per person), snorkel/paddleboards/fishing gear/lily pad
+Highlights: Massive dual-level sun deck, spacious salon for events
+POV: One of the best event vessels on the bay. Included open bar and dual-level deck space.
+
+122' HATTERAS | Cap: 22 | Motor Yacht | Best for: luxury, corporate, milestone celebrations
+Included: Private chef multi-course menu, premium open bar, snorkel/paddleboards/lily pads
+POV: The most elevated experience in the fleet. True white-glove service.
+
+27' SEA RAY | Cap: 8 | Powerboat | Best for: small groups, sightseeing, exploration (BYOF)
+Included: Ice & water
+POV: Best for very small groups who want flexibility and intimacy.
+
+43' LAGOON POWER | Cap: 30 | Power Catamaran | Best for: larger groups, bachelorette, families
+Included: Baguette sandwiches/guac/ceviche, 4-6 beers per person, snorkel/kayak/paddleboard/fishing poles
+POV: Smooth, stable, spacious option for larger groups at a comfortable price point.
+
+LAGOON 450F | Cap: 17 | Catamaran | Best for: bachelorette/bachelor, families
+Included: Baguette sandwiches/guac/ceviche, 4-6 beers per person, snorkel/kayak/paddleboards/lily pad/fishing rods
+Highlights: Flybridge with panoramic views
+POV: One of Lagoon's most popular models. Great balance of space and intimacy.
+
+AZIMUT 54 | Cap: 15 | Motor Yacht | Best for: bachelorette/bachelor, families
+Included: Guac/ceviche (scales at 6hr & 8hr), 4-6 beers per person
+Highlights: Reclining bow lounge pads, sleek Italian design
+POV: Sleek Italian yacht with great bow lounging for a sunny day.
+
+75' HATTERAS | Cap: 50 | Motor Yacht | Best for: bachelorette/bachelor, parties, larger groups
+Included: Full Mexican taco buffet, premium open bar, snorkel/kayak/paddleboards/lily pad/water tubes/fishing gear
+POV: One of the best all-in packages on the fleet. Taco buffet and premium open bar both included.
+
+85' AZIMUT | Cap: 15 | Motor Yacht | Best for: luxury, adventure
+Included: Private chef multi-course menu, premium open bar, wave runner/snorkel/paddleboard/fishing rod/WiFi
+Highlights: ONLY vessel with a wave runner AND WiFi included
+POV: Luxury plus serious fun. The wave runner and WiFi make it completely unique.
+
+44' LEOPARD | Cap: 25 | Catamaran | Best for: bachelorette/bachelor, active groups
+Included: Baguette sandwiches/guac/ceviche, 4-6 beers per person, snorkel/paddleboards/kayaks/lily pad
+Highlights: 2 kayaks + 2 paddle boards
+POV: Great for active groups who want plenty of water toys.
+
+47' LEOPARD | Cap: 25 | Catamaran | Best for: bachelorette/bachelor, families
+Included: Baguette sandwiches/guac/ceviche, 4-6 beers per person, snorkel/paddleboard/lily pad
+Highlights: Trampoline nets on bow
+POV: Laid-back catamaran with trampoline nets — a crowd favorite for bow lounging.
+
+52' SEA RAY | Cap: 15 | Motor Yacht | Best for: bachelorette/bachelor, families
+Included: Guac/ceviche (scales at 6hr & 8hr), 4-6 beers per person, snorkel/paddleboard/fishing rods
+Highlights: Fully cushioned front deck, flybridge with sunroof
+POV: Refined mid-size yacht with great bow setup for sunbathing.
+
+56' CATAMARAN | Cap: 50 | Catamaran | Best for: large parties, bachelorette, celebrations
+Included: Fruit/ceviche/guac/hors d'oeuvres, open bar with margaritas & tropical cocktails, snorkel/paddleboard/lily pad/fishing gear
+Highlights: Tropical cocktails bar included, kid-friendly
+POV: High-energy catamaran for large celebrations. Tropical cocktail bar makes it feel like a party from the start.
+
+65' VITECH | Cap: 20 | Motor Yacht | Best for: sightseeing, families, larger groups
+Included: Ceviche & guac, water/ice/soft drinks/beer, snorkel/lily pad
+Highlights: Flybridge dining with panoramic views, spacious salon
+POV: Great for families and larger groups who want comfort and views.
+
+74' SUNSEEKER | Cap: 20 | Motor Yacht | Best for: sightseeing, families, coastal cruising
+Included: Guac/ceviche (scales 6hr-8hr), 4-6 beers per person, snorkel/lily pad/paddleboard
+Highlights: Open-air flybridge with panoramic views
+POV: Elegant and comfortable for a relaxed day on the bay.
+
+60' CUSTOM CAT | Cap: 120 | Catamaran | Best for: very large celebrations, bachelorette, parties
+Included: Fruit/ceviche/guac/hors d'oeuvres, open bar with margaritas & tropical cocktails
+POV: When the group is too big for anything else. Holds 120 guests comfortably.
+
+90' GRAND CANYON CAT | Cap: 200 | Catamaran | Best for: weddings, reunions, massive events
+Included: Mexican buffet, premium liquor/beer/wine, snorkel/kayak/paddleboards/lily pad/fishing rods
+POV: The largest vessel on the fleet. For events where you need to hold the whole group.
+
+70' AZIMUT BLUE | Cap: 15 | Motor Yacht | Best for: celebrations, corporate, luxury
+Included: Private chef multi-course menu, premium open bar, snorkel/kayak/paddleboard/lily pad, WiFi
+POV: Refined all-inclusive luxury yacht with WiFi. Perfect for corporate groups or intimate celebrations.
+
+25' SEA RAY | Cap: 6 | Powerboat | Best for: very small groups, exploration (BYOF)
+Included: Water/ice/12 beers, snorkel/fishing/lily pad
+POV: Most affordable and intimate option. For a very small group who wants to explore at their own pace.
+`;
+
+const SYSTEM_PROMPT = `You are a sales assistant for Vallarta Yacht Company (VYC), a premium yacht charter marketplace on Banderas Bay in Puerto Vallarta, Mexico.
+
+Recommend exactly 3 vessels in this tiered structure:
+
+TIER 1 — Best overall fit: Best match for the client's experience type, group size, and highest available margin among good fits.
+TIER 2 — Best value: If Tier 1 is not a 40' or 42' Lagoon catamaran, offer the Lagoon as the value play if it fits the group size. If Tier 1 IS the Lagoon, offer another comparable value option at a similar or lower price point.
+TIER 3 — Step up: A vessel with more inclusions (full bar, chef-prepared meal, or premium experience) above the Tier 1 price point. This is the soft upsell — plant the seed.
+
+MARGIN RANKING: Within each tier, always prefer vessels with higher margin over lower margin vessels when experience fit is equal.
+
+${VESSEL_DATA}
+
+EXPERIENCE MATCHING:
+- celebration = 47' Fountaine, 47' Pajot, 75' Hatteras, 90' Cheoy Lee, 122' Hatteras, 70' Azimut Blue, 85' Azimut, 56' Catamaran
+- adventure = 92' President, 85' Hot Tub Azimut, 56' Catamaran, 44' Leopard, 64' Mikelson
+- relaxed/light provisions = 40' Lagoon, 42' Lagoon, 43' Lagoon Power, 450F Lagoon, 44' Leopard, 47' Leopard, 65' Vitech, 74' Sunseeker
+- overnight = 47' Pajot, 47' Fountaine, 122' Hatteras, 70' Azimut Blue
+- bareboat/BYOF = 57' Bertram, 27' Sea Ray, 25' Sea Ray
+- fishing = 64' Mikelson, 40' Viking
+- large groups 25-50 = 90' Cheoy Lee, 75' Hatteras, 81' Sailboat, 51' Leopard, 56' Catamaran, 43' Lagoon Power
+- large groups 50+ = 90' Grand Canyon Cat, 60' Custom Cat
+- small groups under 8 = 25' Sea Ray, 27' Sea Ray, 50' Marquis
+- Default to 6 hour duration unless otherwise specified
+
+RULES:
+- NEVER suggest a vessel where group size exceeds max capacity
+- Always surface 3 distinct vessels across the 3 tiers
+- The Step Up (Tier 3) should always have more inclusions than Tier 1
+
+EMAIL TONE:
+- Warm, confident, local. Trusted expert, not a booking engine
+- Never use em dashes
+- Never say "unforgettable" or "once in a lifetime"
+- Reference the client's specific occasion or plans in the intro
+- Keep it concise
+
+Respond ONLY with valid JSON, no other text:
+{
+  "vessels": [
+    {
+      "tier": 1,
+      "tierLabel": "Best Fit",
+      "name": "display name",
+      "sheetName": "exact sheet prefix",
+      "capacity": "up to X",
+      "why": "2-3 sentence personalized POV for this specific client",
+      "tags": ["tag1", "tag2"]
+    },
+    {
+      "tier": 2,
+      "tierLabel": "Best Value",
+      "name": "display name",
+      "sheetName": "exact sheet prefix",
+      "capacity": "up to X",
+      "why": "2-3 sentence personalized POV",
+      "tags": ["tag1", "tag2"]
+    },
+    {
+      "tier": 3,
+      "tierLabel": "Step Up",
+      "name": "display name",
+      "sheetName": "exact sheet prefix",
+      "capacity": "up to X",
+      "why": "2-3 sentence personalized POV",
+      "tags": ["tag1", "tag2"]
+    }
+  ],
+  "emailSubject": "Your VYC Charter Recommendations",
+  "emailIntro": "2-3 sentence warm personalized intro referencing client name, occasion, and specific plans"
+}`;
+
+function getPickupCode(location) {
+  if (!location) return 'PV';
+  const l = location.toLowerCase();
+  if (l.includes('punta mita') || l.includes('pm')) return 'PM';
+  if (l.includes('la cruz') || l.includes('lc')) return 'LC';
+  if (l.includes('nuevo vallarta') || l.includes('nuevo') || l.includes('nv')) return 'NV';
+  if (l.includes('los muertos') || l.includes('lm') || l.includes('old town') || l.includes('romantic zone') || l.includes('zona romantica')) return 'LM';
+  return 'PV';
+}
+
+function getPickupLabel(code) {
+  const labels = { 'PV': 'Marina Vallarta', 'LM': 'Los Muertos Pier', 'NV': 'Nuevo Vallarta', 'LC': 'La Cruz Marina', 'PM': 'Punta Mita' };
+  return labels[code] || code;
+}
+
+async function fetchPricing(sheetName, guests, pickup, duration) {
+  try {
+    const url = `${PRICING_API}?tourName=${encodeURIComponent(sheetName)}&guests=${guests}&pickup=${pickup}&duration=${duration}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    if (data.error) return null;
+    return data;
+  } catch(e) { return null; }
+}
+
+function getMarginClass(pct) {
+  if (pct >= 30) return 'good';
+  if (pct >= 15) return 'ok';
+  return 'low';
+}
+
+async function generateProposal() {
+  const name = document.getElementById('clientName').value.trim();
+  const date = document.getElementById('charterDate').value.trim();
+  const guests = parseInt(document.getElementById('guestCount').value.trim()) || 0;
+  const location = document.getElementById('location').value.trim();
+  const experience = document.getElementById('experienceType').value;
+  const durationVal = document.getElementById('duration').value;
+  const vesselType = document.getElementById('vesselType').value;
+  const notes = document.getElementById('notes').value.trim();
+
+  const errorDiv = document.getElementById('errorMsg');
+  errorDiv.style.display = 'none';
+
+  if (!name || !guests || !experience) {
+    errorDiv.textContent = 'Please fill in client name, number of guests, and experience type.';
+    errorDiv.style.display = 'block';
+    return;
+  }
+
+  const duration = durationVal && durationVal !== 'overnight' ? parseInt(durationVal) : 6;
+  const pickupCode = getPickupCode(location);
+  const pickupLabel = getPickupLabel(pickupCode);
+
+  const btn = document.getElementById('generateBtn');
+  btn.disabled = true;
+  document.getElementById('loading').style.display = 'block';
+  document.getElementById('output').style.display = 'none';
+
+  const userPrompt = `CLIENT LEAD:
+- Name: ${name}
+- Charter Date: ${date || 'Not specified'}
+- Guests: ${guests}
+- Staying: ${location || 'Not specified'} (Pickup: ${pickupCode} = ${pickupLabel})
+- Experience: ${experience}
+- Duration: ${durationVal || '6 hours'}
+- Vessel Preference: ${vesselType || 'No preference'}
+- Notes: ${notes || 'None'}
+
+Recommend 3 vessels in the tiered structure (Best Fit, Best Value, Step Up).`;
+
+  try {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 2000,
+        system: SYSTEM_PROMPT,
+        messages: [{ role: 'user', content: userPrompt }]
+      })
+    });
+
+    const data = await response.json();
+    const textContent = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
+
+    let parsed;
+    try {
+      const clean = textContent.replace(/```json|```/g, '').trim();
+      parsed = JSON.parse(clean);
+    } catch(e) {
+      throw new Error('Could not parse AI response. Please try again.');
+    }
+
+    // Fetch live pricing for all 3 vessels in parallel
+    const pricingResults = await Promise.all(
+      parsed.vessels.map(v => fetchPricing(v.sheetName, guests, pickupCode, duration))
+    );
+    parsed.vessels = parsed.vessels.map((v, i) => ({ ...v, pricing: pricingResults[i] }));
+
+    // Build email body
+    const vesselBlocks = parsed.vessels.map((v) => {
+      const p = v.pricing;
+      const priceStr = p ? `$${p.totalPrice.toLocaleString()}` : 'Pricing TBD';
+      const extraNote = p && p.extraPax > 0 ? ` (includes ${p.extraPax} extra guest${p.extraPax > 1 ? 's' : ''})` : '';
+      const tierNote = v.tier === 2 ? ' — Best Value' : v.tier === 3 ? ' — Step Up Option' : '';
+      return `- - - - - - - - - -\n${v.name}${tierNote}\n${priceStr} | ${duration} hours | ${pickupLabel} pickup${extraNote}\n\n${v.why}`;
+    }).join('\n\n');
+
+    const emailBody = `${parsed.emailIntro}
+
+Each attachment covers the full experience, what's included, and available add-ons.
+
+${vesselBlocks}
+
+- - - - - - - - - -
+
+Availability is current as of today. Once you select the option that feels right, we will place a soft hold and you will have 48 hours to secure your date with a 50% deposit.
+
+Let me know if you have any questions or want to talk through the options.
+
+[Your name]
+Vallarta Yacht Company
+513-368-4153
+bookings@vallartayachtcompany.com`;
+
+    // Render vessel cards
+    const vesselCards = document.getElementById('vesselCards');
+    vesselCards.innerHTML = '';
+    parsed.vessels.forEach((v) => {
+      const p = v.pricing;
+      const priceDisplay = p ? `$${p.totalPrice.toLocaleString()}` : 'N/A';
+      const marginClass = p ? getMarginClass(p.marginPct) : 'ok';
+      const tierClass = `tier-${v.tier}`;
+      const extraNote = p && p.extraPax > 0 ? ` +${p.extraPax} extra guest${p.extraPax > 1 ? 's' : ''}` : '';
+
+      const card = document.createElement('div');
+      card.className = `vessel-card ${tierClass}`;
+      card.innerHTML = `
+        <div class="vessel-tier">${v.tier}. ${v.tierLabel}</div>
+        <div class="vessel-card-body">
+          <div class="vessel-name">${v.name}</div>
+          <div class="vessel-capacity">${v.capacity}</div>
+          <div class="vessel-price">${priceDisplay}</div>
+          ${p ? `
+          <div class="vessel-margin">
+            <span class="margin-pill ${marginClass}">$${p.margin.toLocaleString()}</span>
+            <span class="margin-pill ${marginClass}">${p.marginPct}% margin</span>
+          </div>
+          <div class="vessel-pricing-note">${duration}hr | ${pickupLabel}${extraNote}</div>
+          ` : `<div class="vessel-pricing-note" style="color:#cc0000;">Pricing unavailable</div>`}
+          <div class="vessel-why">${v.why}</div>
+          <div class="vessel-tags">${(v.tags || []).map(t => `<span class="vessel-tag">${t}</span>`).join('')}</div>
+        </div>
+      `;
+      vesselCards.appendChild(card);
+    });
+
+    document.getElementById('emailSubject').textContent = parsed.emailSubject || 'Your VYC Charter Recommendations';
+    document.getElementById('emailBody').textContent = emailBody;
+    document.getElementById('output').style.display = 'block';
+    document.getElementById('output').scrollIntoView({ behavior: 'smooth' });
+
+  } catch(err) {
+    errorDiv.textContent = 'Error: ' + (err.message || 'Something went wrong. Please try again.');
+    errorDiv.style.display = 'block';
+  } finally {
+    btn.disabled = false;
+    document.getElementById('loading').style.display = 'none';
+  }
+}
+
+function copyEmail() {
+  const subject = document.getElementById('emailSubject').textContent;
+  const body = document.getElementById('emailBody').textContent;
+  navigator.clipboard.writeText(`Subject: ${subject}\n\n${body}`).then(() => {
+    const btn = document.getElementById('copyBtn');
+    btn.textContent = 'Copied!';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = 'Copy Email'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+</script>
+</body>
+</html>
