@@ -565,7 +565,7 @@ async function generateProposal() {
 Recommend 3 vessels in the tiered structure (Best Fit, Best Value, Step Up).`;
 
   try {
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
+    const response = await fetch('https://vyc-proxy.corbittlm97.workers.dev/', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
@@ -678,4 +678,3 @@ function copyEmail() {
 </script>
 </body>
 </html>
-
