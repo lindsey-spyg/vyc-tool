@@ -189,7 +189,7 @@
         </label>
         <label class="checkbox-option">
           <input type="checkbox" id="offerExtraHour" />
-          Extra hour on 50' Marquis (May charters only)
+          Extra hour on 15' Marquee (May charters only)
         </label>
       </div>
       <div class="offers-note">Check offers to include them in the proposal email</div>
@@ -243,6 +243,19 @@
 </div>
 
 <script>
+(function() {
+  const PASS = 'SeasideIsTheBest';
+  const stored = sessionStorage.getItem('vyc_auth');
+  if (stored !== PASS) {
+    const input = prompt('Enter password to access this tool:');
+    if (input !== PASS) {
+      document.body.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100vh;font-family:Montserrat,sans-serif;color:#192750;font-size:14px;">Access denied. Please refresh and try again.</div>';
+      throw new Error('Access denied');
+    }
+    sessionStorage.setItem('vyc_auth', PASS);
+  }
+})();
+
 const PRICING_API = 'https://script.google.com/macros/s/AKfycbxmI6NiUOMgrk8w-DV_atpWwaZ6EKqa76zcyDyKGt3hjaI5Kx8n58y3F86Jp9bPQtVJ/exec';
 
 const VESSEL_DATA = `
@@ -423,9 +436,28 @@ const SYSTEM_PROMPT = `You are a sales assistant for Vallarta Yacht Company (VYC
 
 Recommend exactly 3 vessels in this tiered structure:
 
-TIER 1 — Best overall fit: Best match for the client's experience type, group size, and highest available margin among good fits.
-TIER 2 — Best value: If Tier 1 is not a 40' or 42' Lagoon catamaran, offer the Lagoon as the value play if it fits the group size. If Tier 1 IS the Lagoon, offer another comparable value option at a similar or lower price point.
-TIER 3 — Step up: A vessel with more inclusions (full bar, chef-prepared meal, or premium experience) above the Tier 1 price point. This is the soft upsell.
+DEFAULT TRIO — use this when group size fits all three vessels AND experience is not fishing, bareboat, large group 25+, adventure, overnight, corporate, happyhour, wedding_large, or wedding_weekend:
+- TIER 1 — Lagoon Catamaran: Choose 40' Lagoon for PV/LM/NV pickup locations. Choose 42' Lagoon for LC/PM pickup since it is docked closer to those areas. Best value catamaran on the bay, full bar and light food included.
+- TIER 2 — 47' Fountaine: Luxury catamaran with private chef and premium bar. The premium catamaran step up.
+- TIER 3 — 50' Marquis: Yacht option with food, beverage, and selection of 3 bottles. Offers a different vessel type (yacht vs catamaran) for clients who want that feel.
+
+This default trio applies to: bachelorette (under 12 guests), birthday (small group), celebration, anniversary, relaxed, wedding_small, and general inquiries where group fits all three vessels.
+
+OVERRIDE THE DEFAULT TRIO when:
+- Group exceeds 12 (Marquis max) — swap Marquis for a larger vessel
+- Group exceeds 18 (Lagoon max) — swap Lagoon for a larger catamaran  
+- Experience is fishing — use Mikelson-focused recommendations, NEVER use default trio
+- Experience is bareboat/BYOB — use Bertram-focused recommendations, NEVER use default trio
+- Experience is large group 25+ — use large vessel recommendations
+- Experience is overnight — use overnight-capable vessels
+- Experience is corporate — use corporate-appropriate vessels
+- Experience is happyhour — use Cheoy Lee happy hour option
+- Experience is adventure/high energy — use President/adventure vessels
+- Experience is wedding_large or wedding_weekend — use large event vessels
+
+LOCATION-BASED LAGOON SELECTION:
+- PV (Marina Vallarta), LM (Los Muertos), NV (Nuevo Vallarta) pickup: recommend 40' Lagoon I or II
+- LC (La Cruz), PM (Punta Mita) pickup: recommend 42' Lagoon I or II (closer to those pickup points)
 
 MARGIN RANKING: Within each tier, always prefer vessels with higher margin over lower margin vessels when experience fit is equal.
 
@@ -436,19 +468,19 @@ OUT OF COMMISSION — NEVER RECOMMEND THESE:
 - 40' Viking
 - 75' Hatteras
 
-EXPERIENCE MATCHING:
-- bachelorette/bachelor = 40' Lagoon, 42' Lagoon, 56' Catamaran, 51' Leopard, 44' Leopard, 47' Leopard, 92' President
+EXPERIENCE MATCHING (used when default trio does not apply):
+- bachelorette/bachelor (large group 18+) = 56' Catamaran, 51' Leopard, 44' Leopard, 92' President
 - wedding_large (20+ guests) = 90' Cheoy Lee (first choice), 56' Catamaran, 51' Leopard
-- wedding_small (under 20 guests) = 51' Leopard (first choice), 47' Fountaine, 70' Azimut Blue, 50' Marquis
-- wedding_weekend = 60' Custom Cat (first choice for welcome party), 90' Cheoy Lee, 90' Grand Canyon Cat
-- birthday = 92' President, 90' Cheoy Lee, 47' Pajot, 51' Leopard
-- celebration/anniversary = 47' Fountaine, 47' Pajot, 90' Cheoy Lee, 122' Hatteras, 70' Azimut Blue
+- wedding_small (under 20 guests) = DEFAULT TRIO
+- wedding_weekend = 60' Custom Cat (first choice), 90' Cheoy Lee, 90' Grand Canyon Cat
+- birthday (large group 12+) = 92' President, 90' Cheoy Lee, 47' Pajot, 51' Leopard
+- celebration/anniversary (large group 12+) = 90' Cheoy Lee, 122' Hatteras, 70' Azimut Blue
 - adventure/high energy = 92' President (first choice), 56' Catamaran, 44' Leopard, 64' Mikelson
-- relaxed/light provisions = 40' Lagoon (first choice), 42' Lagoon, 43' Lagoon Power, 450F Lagoon, 44' Leopard, 47' Leopard, 65' Vitech, 74' Sunseeker
-- fishing = 64' Mikelson (first choice)
+- relaxed/light provisions (large group 18+) = 43' Lagoon Power, 450F Lagoon, 44' Leopard, 65' Vitech, 74' Sunseeker
+- fishing = 64' Mikelson (first choice), NEVER use default trio
 - overnight = 47' Pajot, 47' Fountaine, 122' Hatteras, 70' Azimut Blue
 - corporate = 90' Cheoy Lee, 70' Azimut Blue, 51' Leopard, 122' Hatteras
-- bareboat/BYOB = 57' Bertram, 59' Azimut, 27' Sea Ray, 25' Sea Ray
+- bareboat/BYOB = 57' Bertram, 59' Azimut, 27' Sea Ray, 25' Sea Ray, NEVER use default trio
 - happyhour = 90' Cheoy Lee (first choice), 50' Marquis, 51' Leopard
 - large groups 25-50 = 90' Cheoy Lee (first choice), 81' Sailboat, 51' Leopard, 56' Catamaran, 43' Lagoon Power
 - large groups 50+ = 90' Grand Canyon Cat, 60' Custom Cat
