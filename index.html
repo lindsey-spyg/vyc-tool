@@ -32,6 +32,11 @@
   .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--navy); }
   .form-group textarea { resize: vertical; min-height: 70px; }
   .section-label { font-size: 9px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; color: var(--gold); margin: 20px 0 12px; padding-bottom: 8px; border-bottom: 1px solid var(--border); grid-column: 1 / -1; }
+  .checkbox-group { display: flex; flex-direction: column; gap: 8px; grid-column: 1 / -1; }
+  .checkbox-group label { font-size: 10px; font-weight: 600; letter-spacing: 2px; text-transform: uppercase; color: var(--navy); margin-bottom: 4px; }
+  .checkbox-options { display: flex; flex-wrap: wrap; gap: 8px; }
+  .checkbox-option { display: flex; align-items: center; gap: 6px; font-size: 12px; color: var(--grey); cursor: pointer; }
+  .checkbox-option input[type="checkbox"] { width: 14px; height: 14px; accent-color: var(--navy); cursor: pointer; }
   .generate-btn { width: 100%; background: var(--navy); color: var(--cream); border: none; padding: 16px; font-family: 'Montserrat', sans-serif; font-size: 11px; font-weight: 600; letter-spacing: 3px; text-transform: uppercase; cursor: pointer; transition: background 0.2s; margin-top: 8px; }
   .generate-btn:hover { background: var(--navy-mid); }
   .generate-btn:disabled { background: #aaa; cursor: not-allowed; }
@@ -75,6 +80,7 @@
   .email-body { padding: 24px; font-size: 13px; line-height: 1.85; color: var(--grey); white-space: pre-line; }
   .error { background: #fff5f5; border: 1px solid #ffcccc; padding: 16px 20px; color: #cc0000; font-size: 13px; margin-top: 16px; }
   .section-divider { border: none; border-top: 1px solid var(--border); margin: 32px 0; }
+  .offers-note { font-size: 10px; color: #888; font-style: italic; margin-top: 4px; }
 </style>
 </head>
 <body>
@@ -90,20 +96,16 @@
   <div class="form-grid">
     <div class="section-label">Client Information</div>
     <div class="form-group">
-      <label>Client Name*</label>
-      <input type="text" id="clientName" placeholder="e.g. Alli Johnson" />
+      <label>Client First Name*</label>
+      <input type="text" id="clientName" placeholder="e.g. Sarah" />
     </div>
     <div class="form-group">
       <label>Email</label>
-      <input type="email" id="clientEmail" placeholder="e.g. alli@email.com" />
-    </div>
-    <div class="form-group">
-      <label>Phone</label>
-      <input type="text" id="clientPhone" placeholder="e.g. 555-123-4567" />
+      <input type="email" id="clientEmail" placeholder="e.g. sarah@email.com" />
     </div>
     <div class="form-group">
       <label>Charter Date</label>
-      <input type="text" id="charterDate" placeholder="e.g. Feb 14, 2027 or flexible" />
+      <input type="text" id="charterDate" placeholder="e.g. June 20, 2026 or flexible" />
     </div>
     <div class="form-group">
       <label>Estimated No. of Guests*</label>
@@ -111,7 +113,11 @@
     </div>
     <div class="form-group">
       <label>Where are they staying?</label>
-      <input type="text" id="location" placeholder="e.g. Hotel Mousai, Punta Mita" />
+      <input type="text" id="location" placeholder="e.g. Hilton Puerto Vallarta, Punta Mita" />
+    </div>
+    <div class="form-group">
+      <label>Rep Name (for email sign-off)</label>
+      <input type="text" id="repName" placeholder="e.g. Lindsey" />
     </div>
 
     <div class="section-label">Experience & Preferences</div>
@@ -119,11 +125,19 @@
       <label>What kind of experience are they looking for?*</label>
       <select id="experienceType">
         <option value="">Select...</option>
-        <option value="celebration">Special celebration (wedding, bachelor/bachelorette, etc.)</option>
-        <option value="adventure">Full adventure with snorkeling, water toys, and high-excitement</option>
-        <option value="relaxed">A relaxing cruise of the bay with light provisions</option>
+        <option value="bachelorette">Bachelorette / Bachelor party</option>
+        <option value="wedding_large">Wedding celebration (20+ guests)</option>
+        <option value="wedding_small">Wedding celebration (under 20 guests)</option>
+        <option value="wedding_weekend">Wedding weekend multi-event</option>
+        <option value="birthday">Birthday celebration</option>
+        <option value="celebration">Special celebration (anniversary, graduation, etc.)</option>
+        <option value="adventure">Full adventure with snorkeling, water toys, high-excitement</option>
+        <option value="relaxed">Relaxing cruise of the bay with light provisions</option>
+        <option value="fishing">Sport fishing</option>
         <option value="overnight">Overnight excursion</option>
-        <option value="bareboat">Just a day on the water. No food or drink needed</option>
+        <option value="corporate">Corporate / group event</option>
+        <option value="bareboat">Just a day on the water. No food or drink needed (BYOB)</option>
+        <option value="happyhour">Happy hour / welcome cruise (2 hours)</option>
         <option value="other">Something else</option>
       </select>
     </div>
@@ -132,6 +146,7 @@
       <select id="duration">
         <option value="6">6 hours (recommended)</option>
         <option value="4">4 hours</option>
+        <option value="2">2 hours (happy hour / sunset)</option>
         <option value="8">8 hours</option>
         <option value="overnight">Overnight or multiple days</option>
       </select>
@@ -144,9 +159,46 @@
         <option value="catamaran">Catamaran</option>
       </select>
     </div>
+    <div class="form-group">
+      <label>Handoff Type</label>
+      <select id="handoffType">
+        <option value="fresh">Fresh intro (no prior relationship)</option>
+        <option value="kyle">Team member transition (acknowledge handoff)</option>
+        <option value="followup">Following up on prior conversation</option>
+      </select>
+    </div>
     <div class="form-group full">
-      <label>Additional Notes (occasion, activities, kids, budget signals, etc.)</label>
-      <textarea id="notes" placeholder="e.g. Bachelorette party, wants to beach hop and snorkel, 2 kids aged 4 and 8, budget conscious"></textarea>
+      <label>Drop-off Option</label>
+      <select id="dropoff">
+        <option value="none">Standard roundtrip (return to pickup)</option>
+        <option value="losmuertos">Drop off at Los Muertos Pier (fee varies by vessel)</option>
+        <option value="puntamita">Drop off in Punta Mita (fee varies by vessel)</option>
+      </select>
+    </div>
+
+    <div class="section-label">Active May Offers (check all that apply)</div>
+    <div class="checkbox-group">
+      <div class="checkbox-options">
+        <label class="checkbox-option">
+          <input type="checkbox" id="offerDecorations" />
+          Free decoration package (any May booking, any future date)
+        </label>
+        <label class="checkbox-option">
+          <input type="checkbox" id="offerDiscount" />
+          10% off charters $2,500+ (book in May, any future date)
+        </label>
+        <label class="checkbox-option">
+          <input type="checkbox" id="offerExtraHour" />
+          Extra hour on 50' Marquis (May charters only)
+        </label>
+      </div>
+      <div class="offers-note">Check offers to include them in the proposal email</div>
+    </div>
+
+    <div class="section-label">Additional Context</div>
+    <div class="form-group full">
+      <label>Additional Notes (occasion, activities, kids, budget signals, dietary needs, etc.)</label>
+      <textarea id="notes" placeholder="e.g. Bachelorette party, wants to beach hop and snorkel, staying at Secrets Vallarta Bay, budget around $2,500, group has 2 kids, wants to go to Animas Beach Club after"></textarea>
     </div>
   </div>
 
@@ -198,22 +250,19 @@ VESSEL CATALOG — VALLARTA YACHT COMPANY
 
 SHEET NAME PREFIXES — use these exactly in the sheetName field:
 47' Fountaine → "47' Fountaine"
-40' Lagoon (I or II) → "40' Lagoon I" or "40' Lagoon' II"
+40' Lagoon (I or II) → "40' Lagoon I" or "40' Lagoon II"
 42' Lagoon (I or II) → "42' Lagoon I" or "42' Lagoon II"
 47' Pajot → "47' Pajot"
-40' Viking → "40' Viking"
 50' Marquis → "50' Marquis"
 51' Leopard → "51' Leopard"
 57' Bertram → "57' Bertram"
 81' Sailboat → "81' Chaote"
-85' Hot Tub Azimut → "85' Hot Tub Azimut"
 90' Cheoy Lee → "90' Cheoy Lee"
 122' Hatteras → "122' Hatteras"
 27' Sea Ray → "27' Sea Ray"
 43' Lagoon Power → "43' Lagoon Power"
 Lagoon 450F → "450F Lagoon"
 Azimut 54 → "54' Azimut"
-75' Hatteras → "75' Hatteras"
 44' Leopard → "44' Leopard"
 47' Leopard → "47' Leopard"
 52' Sea Ray → "52' Sea Ray"
@@ -227,206 +276,210 @@ Azimut 54 → "54' Azimut"
 25' Sea Ray → "25' Sea Ray"
 64' Mikelson → "64' Mikelson"
 92' President → "92' President"
+75' Hatteras → "75' Hatteras"
 
-NOTE: The 85' Azimut is currently OUT OF COMMISSION. Do NOT recommend it under any circumstances.
+OUT OF COMMISSION — NEVER RECOMMEND:
+- 85' Hot Tub Azimut (out of commission)
+- 40' Viking (out of commission)
+- 75' Hatteras (out of commission)
 
 VESSELS:
 47' FOUNTAINE | Cap: 18 | Catamaran | Best for: romance, celebrations, luxury
 Included: Gourmet breakfast/lunch/dinner prepared by private chef, premium open bar with custom cocktails, snorkel gear, 2 paddleboards, lily pad, fishing rods, dinghy
-Highlights: Private chef onboard, whale hydrophone to listen to whales underwater, dinghy for access to remote beaches and hidden coves, bow lounging deck
-Differentiators: The only catamaran on the fleet with a private chef AND a whale hydrophone. The dinghy takes your group to beaches most guests never reach. Food and beverage are fully included at the highest level.
+Highlights: Private chef onboard, whale hydrophone, dinghy for access to remote beaches and hidden coves, bow lounging deck
+Differentiators: Only catamaran with a private chef AND a whale hydrophone. The dinghy takes your group to beaches most guests never reach.
 
 40' LAGOON I & II | Cap: 18 | Catamaran | Best for: bachelorette/bachelor, families, VALUE
-Included: Fish ceviche, guac, chips, fresh fruit, welcome margaritas, 24 beers, rum, tequila, vodka, snorkel gear, 2 paddleboards, fishing rods, lily pad
-Highlights: Bow lounging net deck over the water, warm and attentive crew, fajita meal or private chef upgrade available for a fee, Bluetooth sound system
-Differentiators: One of the best value options on the bay. Solid bar setup and a great crew without the premium price tag. The bow net is a crowd favorite.
+Included: Fish ceviche, guac, chips, fresh fruit, welcome margaritas, 24 beers, rum, tequila, vodka, snorkel gear, 2 paddleboards, fishing rods, lily pad, Bluetooth sound system
+Highlights: Bow lounging net deck over the water, warm and attentive crew, fajita meal or private chef upgrade available for a fee
+Differentiators: One of the best value options on the bay. Great crew, solid bar, the bow net is a crowd favorite.
 
 42' LAGOON I & II | Cap: 20 | Catamaran | Best for: bachelorette/bachelor, families, VALUE
-Included: Fish ceviche, guac, chips, fresh fruit, welcome margaritas, 24 beers, rum, tequila, vodka, snorkel gear, 2 paddleboards, fishing rods, lily pad
+Included: Fish ceviche, guac, chips, fresh fruit, welcome margaritas, 24 beers, rum, tequila, vodka, snorkel gear, 2 paddleboards, fishing rods, lily pad, Bluetooth sound system
 Highlights: Bow lounging net deck, warm and attentive crew, fajita meal or private chef upgrade available for a fee
-Differentiators: If you want a little more space than the 40', this is your boat. Great for families and celebrations. You still get light appetizers and a standard bar. Simple, fun, great value.
+Differentiators: Slightly more space than the 40'. Same great value, same crew quality. Great for families and celebrations.
 
 47' PAJOT | Cap: 16 | Catamaran | Best for: luxury, corporate, romance
 Included: Multi-course dining (seafood, pasta, steak, dessert), premium open bar with top-tier spirits and fine wines, onboard mixologist crafting custom cocktails, snorkel gear, 2 paddleboards, fishing rods, lily pad, dinghy
-Highlights: Onboard mixologist, dinghy to remote beaches and hidden coastal towns most guests never see, bow lounging deck
-Differentiators: The newest and most enticing experience on the bay. The onboard mixologist is a unique feature not found on any other vessel. Dinghy access to waterfalls and hidden towns sets this apart.
+Highlights: Onboard mixologist, dinghy to remote beaches and hidden coastal towns, bow lounging deck
+Differentiators: The newest and most enticing experience on the bay. Onboard mixologist is unique. Dinghy access to waterfalls and hidden towns.
 
-92' PRESIDENT | Cap: 28 | Motor Yacht | Best for: parties, adventure, high energy
+92' PRESIDENT | Cap: 28 | Motor Yacht | Best for: parties, adventure, high energy, birthdays
 Included: 2 cold appetizers, 36 beers, soft drinks, water, ice, 1 bottle of tequila, lily pad, water slide, kayak, paddleboard, snorkel gear, banana boat
-Highlights: 4 levels, 3-story water slide, hot tub for relaxation or stargazing, Bluetooth speaker, chef and bar upgrade available
-Differentiators: This yacht truly comes with it all for an enjoyable and exciting day on the water. A 3-story water slide, hot tub, snorkel gear, paddle boards, banana boat, and a floating mat. Your group will never run out of things to do.
+Highlights: 4 levels, 3-story water slide, hot tub, banana boat, chef and bar upgrade available
+Differentiators: 3-story water slide, hot tub, banana boat. Groups never run out of things to do.
 
 64' MIKELSON | Cap: 15 | Motor Yacht | Best for: fishing, adventure, beach hopping
 Included: Fresh ceviche, guac, seasonal fruit, chilled beers, soft drinks, house cocktails, snorkel gear, kayak, life jackets, full sport fishing setup
-Highlights: Pompanette fighting chair, Penn International 30 and 50 reels, 8 rods, full lure selection, dinghy for beach and cove access
-Differentiators: The most fully equipped sport fishing setup on the bay. The dinghy also doubles as a water taxi to hidden beaches and coves for groups who want both fishing and exploration.
-
-40' VIKING | Cap: 15 | Sport Fishing | Best for: fishing focused groups
-Included: Water, ice, sodas, beer, full fishing setup with live bait, snorkel gear
-Highlights: Live bait, crew that knows the best fishing spots on Banderas Bay, chef and bar upgrade available
-Differentiators: A dedicated sport fishing boat with live bait. Best for groups whose primary goal is fishing without the extras.
+Highlights: Pompanette fighting chair, Penn International reels, 8 rods, full lure selection, dinghy for beach and cove access
+Differentiators: Most fully equipped sport fishing setup on the bay. Dinghy doubles as a water taxi to hidden beaches.
 
 50' MARQUIS | Cap: 12 | Motor Yacht | Best for: smaller groups, celebrations, sunset charters
-Included: Fresh ceviche and guac (daytime), chef-prepared canapes (evening/sunset), ice, water, Coca-Cola, 4 beers per person, snorkel gear, paddleboard
-Highlights: Bow sun pads for prime lounging, chef-prepared canapes on evening charters, chef and bar upgrade available
-Differentiators: Sleek, refined, and intimate. The only vessel on the fleet that includes chef-prepared canapes on evening charters as a standard inclusion. Best for smaller groups who want something polished.
+Included: Fresh ceviche and guac (daytime), chef-prepared canapes (evening/sunset), ice, water, soft drinks, 4 beers per person, snorkel gear, paddleboard
+Highlights: Bow sun pads, chef-prepared canapes on evening charters standard, chef and bar upgrade available
+Differentiators: Only vessel on the fleet that includes chef-prepared canapes on evening charters as standard.
 
 51' LEOPARD | Cap: 30 | Power Catamaran | Best for: larger groups, bachelorette, corporate, families
 Included: Fresh fruit, hummus, Argentine empanadas, ciabatta sandwiches, dessert tray, full spirits bar (gin, rum, tequila, vodka, whiskey, beer), snorkel gear, 2 paddleboards, inflatables
 Highlights: 25ft width — one of the widest catamarans on the bay, exceptional deck space, all-inclusive upgrade available
-Differentiators: The 25ft width gives more usable deck space than most vessels at this capacity. The food spread is notably more substantial than comparable catamarans — empanadas, sandwiches, and a dessert tray all included.
+Differentiators: 25ft width gives more usable deck space than most vessels. Food spread is notably more substantial — empanadas, sandwiches, dessert tray all included.
 
-57' BERTRAM | Cap: 35 | Motor Yacht | Best for: BYOF groups, large casual groups
+57' BERTRAM | Cap: 35 | Motor Yacht | Best for: BYOB groups, large casual groups, budget-conscious
 Included: Ice, water, snorkel gear, 2 paddleboards, 2 fishing rods, full onboard sound system
-Highlights: Guests can bring any food and beverages aboard, full sound system, private chef and bar package available for a fee
-Differentiators: The best option for groups who want to bring their own food and drinks and have full control of the experience. The sound system sets the atmosphere all day.
+Highlights: Guests can bring any food and beverages aboard, full sound system, private chef and bar package available
+Differentiators: Best option for groups who want to bring their own food and drinks and control the experience. Great sound system.
 
 81' SAILBOAT | Cap: 50 | Sailboat | Best for: large celebrations, families, groups wanting something different
 Included: Fresh fruit, ceviche, chips, guacamole, 24 beers, tequila, rum, vodka, soft drinks, fishing gear, snorkel gear, paddleboards, lily pads
 Highlights: Hot tub onboard, eFoil plus instructor available for a fee, elegant salon
-Differentiators: The only sailboat on the fleet with a hot tub. The eFoil option is a unique add-on not available on most vessels. Great for larger groups who want something visually impressive and memorable.
-
-85' HOT TUB AZIMUT | Cap: 25 | Motor Yacht | Best for: parties, families, adventure with comfort
-Included: Fresh fruit, guacamole, fish ceviche, tuna, sashimi, agua chile, 24 beers, soft drinks, snorkel gear, 2 paddleboards, fishing rods, lily pad
-Highlights: Hot tub, water slide, menu scales up (burgers at 6hr, fajitas at 8hr included), bar packages available
-Differentiators: One of very few vessels on the fleet with both a hot tub AND a water slide. The menu scaling means the longer you book, the more food is included automatically.
+Differentiators: Only sailboat on the fleet with a hot tub. eFoil add-on not available on most vessels.
 
 90' CHEOY LEE | Cap: 50 | Motor Yacht | Best for: parties, corporate events, weddings, large groups
 Included: Guacamole, chips, ceviche, seasonal platter, full open bar up to 6 drinks per person (beer, wine, spirits), snorkel gear, 2 paddleboards, fishing gear, lily pad
-Highlights: Massive bow and top sun deck across two levels, spacious salon and dining area for hosting events, private chef upgrade available
-Differentiators: The dual-level deck gives this vessel more usable outdoor space than almost anything else at this capacity. The included open bar up to 6 drinks per person is exceptional value for a vessel this size.
+Highlights: Massive bow and top sun deck across two levels, spacious salon and dining area, private chef upgrade available
+Happy Hour option available: 2-hour sunset cruise with open bar — great for wedding welcome parties. Can drop group at Los Muertos Pier after for dinner.
+Differentiators: Dual-level deck gives more usable outdoor space than almost anything at this capacity. Open bar up to 6 drinks per person is exceptional value.
 
 122' HATTERAS | Cap: 22 | Motor Yacht | Best for: luxury groups, corporate, milestone celebrations
 Included: Private chef with fully personalized multi-course menu (seafood, steak, desserts), premium open bar with top-tier spirits, fine wines, cocktails and mocktails, snorkel gear, paddleboards, lily pads
 Highlights: Multiple sunbathing decks, full saloon, true white-glove service throughout
-Differentiators: The most elevated experience in the fleet. Scale, service, and detail all come together. Every moment is designed to feel effortless. For groups where the experience needs to match the occasion.
+Differentiators: The most elevated experience in the fleet. Scale, service, and detail all come together.
 
 27' SEA RAY | Cap: 8 | Powerboat | Best for: small groups, sightseeing, exploration
 Included: Ice, water, snorkel gear, paddleboard, fishing gear, lily pad
-Highlights: Easy access to south beaches and hidden coves, coastal sightseeing, intimate and nimble
-Differentiators: The most flexible and intimate option on the fleet for small groups. Easy to navigate to beach clubs and tucked-away coves that larger vessels cannot reach.
+Highlights: Easy access to south beaches and hidden coves, coastal sightseeing, intimate
+Differentiators: Most flexible and intimate option for small groups. Can reach beach clubs and tucked-away coves that larger vessels cannot.
 
 43' LAGOON POWER | Cap: 30 | Power Catamaran | Best for: larger groups, bachelorette, families
-Included: Baguette sandwiches, guacamole, fresh ceviche, 4-6 beers per person (Corona and Pacifico), soft drinks, snorkel gear, kayak, paddleboard, 2 fishing poles, life jackets
-Highlights: Smooth and stable power cat ride, expansive padded bow and wrapped booth seating for larger groups, chef and bar upgrade available
-Differentiators: The power catamaran design gives a notably smoother and more stable ride than sailing catamarans. Great for groups with guests who get seasick or who want a more relaxed ride.
+Included: Baguette sandwiches, guacamole, fresh ceviche, 4-6 beers per person, soft drinks, snorkel gear, kayak, paddleboard, 2 fishing poles, life jackets
+Highlights: Smooth and stable power cat ride, expansive padded bow and wrapped booth seating, chef and bar upgrade available
+Differentiators: Notably smoother and more stable ride than sailing catamarans. Great for guests who get seasick.
 
 LAGOON 450F | Cap: 17 | Catamaran | Best for: bachelorette/bachelor, families
 Included: Baguette sandwiches, guacamole, fresh ceviche, 4-6 beers per person, soft drinks, snorkel gear, kayak, paddleboards, lily pad, fishing rods
 Highlights: Flybridge with panoramic views, seamless indoor-outdoor flow, stable catamaran design, chef and bar upgrade available
-Differentiators: One of Lagoon's most popular production models. The flybridge and indoor-outdoor salon flow create a premium feel at a mid-range price point.
+Differentiators: Popular Lagoon production model. Flybridge and indoor-outdoor salon flow create a premium feel at a mid-range price.
 
 AZIMUT 54 | Cap: 15 | Motor Yacht | Best for: bachelorette/bachelor, families, relaxed cruising
 Included: Guacamole and fresh ceviche (menu scales at 6hr and 8hr), 4-6 beers per person, soft drinks, snorkel gear, lily pad, paddleboard, 2 fishing poles
 Highlights: Reclining lounge pads on bow, sleek Italian design, menu scales with duration, chef and bar upgrade available
-Differentiators: Sleek Italian design with a fully cushioned bow ideal for sunbathing. One of the better-looking mid-range yachts on the bay. Menu gets more substantial the longer you book.
-
-75' HATTERAS | Cap: 50 | Motor Yacht | Best for: bachelorette/bachelor, large parties, families
-Included: Full Mexican taco buffet (beef and chicken fajitas, shrimp pasta, salad, ceviche, guacamole), premium open bar with top-shelf spirits (tequila, vodka, rum, whisky, gin), beer, snorkel gear, kayak, paddleboards, lily pad, water tubes, fishing gear
-Highlights: Massive flybridge seating 30+ guests, full taco buffet AND premium open bar both included as standard
-Differentiators: One of the only vessels on the fleet where both a full meal AND a premium open bar are included in the base price. The flybridge alone can seat 30 guests. Outstanding value for groups that want the full experience without upgrade fees.
+Differentiators: Sleek Italian design. Fully cushioned bow ideal for sunbathing.
 
 44' LEOPARD | Cap: 25 | Catamaran | Best for: bachelorette/bachelor, active groups, families
 Included: Baguette sandwiches, guacamole, fresh ceviche, 4-6 beers per person, soft drinks, snorkel gear, 2 paddleboards, 2 kayaks, lily pad
-Highlights: 2 kayaks AND 2 paddleboards included (double the water toys of most catamarans), unique forward cockpit for extra lounging space, panoramic salon, chef and bar upgrade available
-Differentiators: The double water toy setup — 2 kayaks and 2 paddleboards — gives active groups more to do on the water than most comparable vessels. The forward cockpit is a distinctive layout feature.
+Highlights: 2 kayaks AND 2 paddleboards included, unique forward cockpit for extra lounging, chef and bar upgrade available
+Differentiators: Double water toy setup gives active groups more to do than most comparable vessels.
 
 47' LEOPARD | Cap: 25 | Catamaran | Best for: bachelorette/bachelor, families, relaxed groups
 Included: Baguette sandwiches, guacamole, fresh ceviche, 4-6 beers per person, soft drinks, snorkel gear, paddleboard, lily pad
-Highlights: Trampoline bow nets for ultimate lounging, walk-through swim platform, spacious salon, chef and bar upgrade available
-Differentiators: The trampoline nets on the bow are a signature feature that guests love. The walk-through swim platform makes getting in and out of the water easier than most catamarans.
+Highlights: Trampoline bow nets for lounging, walk-through swim platform, spacious salon, chef and bar upgrade available
+Differentiators: Trampoline nets on the bow are a signature guest favorite. Walk-through swim platform makes getting in and out of the water easy.
 
 52' SEA RAY | Cap: 15 | Motor Yacht | Best for: bachelorette/bachelor, families, relaxed groups
 Included: Guacamole and fresh ceviche (menu scales at 6hr and 8hr), 4-6 beers per person, soft drinks, snorkel gear, paddleboard, 2 fishing rods
-Highlights: Fully cushioned front deck for sunbathing, flybridge with hardtop and sunroof, shaded cockpit with wet bar, menu scales with duration, chef and bar upgrade available
-Differentiators: The wet bar in the shaded cockpit is a practical and premium touch. The fully cushioned bow creates one of the better sunbathing setups in the mid-range yacht category.
+Highlights: Fully cushioned front deck, flybridge with hardtop and sunroof, shaded cockpit with wet bar, menu scales with duration, chef and bar upgrade available
+Differentiators: Wet bar in the shaded cockpit. One of the better sunbathing setups in the mid-range yacht category.
 
 56' CATAMARAN | Cap: 50 | Catamaran | Best for: large parties, bachelorette, celebrations, families
 Included: Fresh fruit, ceviche, guacamole, chef-prepared hors d'oeuvres, open bar (beer, margaritas, tropical cocktails), snorkel gear, paddleboard, lily pad, fishing gear
-Highlights: Tropical cocktails bar included as standard, chef-prepared hors d'oeuvres and fajitas on 6hr charters, kid-friendly with smoothies for children onboard, expansive trampolines
-Differentiators: One of the few vessels on the fleet where a tropical cocktail bar is included at the base price — not an upgrade. The kid-friendly smoothie option makes it the best choice for mixed groups with children.
+Highlights: Tropical cocktails bar included standard, chef hors d'oeuvres and fajitas on 6hr charters, kid-friendly smoothies, expansive trampolines
+Note: Departs from La Cruz Marina only (not Marina Vallarta)
+Differentiators: Tropical cocktail bar included at base price. Fajitas included on 6hr charters. Kid-friendly smoothie option.
 
 65' VITECH | Cap: 20 | Motor Yacht | Best for: sightseeing, families, larger groups
-Included: Freshly prepared ceviche and guacamole, water, ice, soft drinks, chilled beers, snorkel gear, lily pad
-Highlights: Flybridge dining with shaded top deck and panoramic bay view, spacious interior salon for full group, menu scales as duration increases, private chef and open bar available for a fee
-Differentiators: The shaded flybridge with panoramic views is one of the best on the bay for sightseeing and dining. The salon gives the whole group a comfortable indoor space to retreat to.
+Included: Fresh ceviche and guacamole, water, ice, soft drinks, chilled beers, snorkel gear, lily pad
+Highlights: Flybridge dining with shaded top deck and panoramic bay view, spacious interior salon, menu scales, private chef and open bar available
+Differentiators: Shaded flybridge with panoramic views is one of the best on the bay for sightseeing and dining.
 
-74' SUNSEEKER | Cap: 20 | Motor Yacht | Best for: sightseeing, families, coastal cruising, relaxed groups
-Included: Guacamole and fresh ceviche (menu scales from 6hr to 8hr), 4-6 beers per person, soft drinks, snorkel gear, lily pad, paddleboard
-Highlights: Spacious covered flybridge with panoramic views, padded bow for lounging, elegant cockpit dining area, chef and bar upgrade available
-Differentiators: Elegant British design with one of the better flybridge setups on the fleet. The cockpit dining area and padded bow create distinct zones for different moods on the same boat.
+74' SUNSEEKER | Cap: 20 | Motor Yacht | Best for: sightseeing, families, coastal cruising
+Included: Guacamole and fresh ceviche (menu scales 6hr to 8hr), 4-6 beers per person, soft drinks, snorkel gear, lily pad, paddleboard
+Highlights: Spacious covered flybridge, padded bow, elegant cockpit dining area, chef and bar upgrade available
+Differentiators: Elegant British design. One of the better flybridge setups on the fleet.
 
-60' CUSTOM CAT | Cap: 120 | Catamaran | Best for: very large celebrations, bachelorette, corporate events
+60' CUSTOM CAT | Cap: 120 | Catamaran | Best for: very large celebrations, bachelorette, corporate events, wedding weekends
 Included: Fresh fruit, ceviche, guacamole, chef-prepared hors d'oeuvres, open bar (beer, margaritas, tropical cocktails), snorkel gear, paddleboard, lily pad, fishing gear
-Highlights: Capacity for up to 120 guests, cushioned lounging pads throughout, massive dining and bar area on main floor, kid-friendly with smoothies for children
-Differentiators: The only vessel on the fleet that can comfortably hold 120 guests. When the group is simply too large for anything else, this is the answer.
+Highlights: Capacity for up to 120 guests, cushioned lounging pads throughout, massive dining and bar area on main floor, kid-friendly
+Note: Departs from La Cruz Marina (approx 1 hour from Marina Vallarta area). Ground transportation to/from La Cruz can be arranged.
+Differentiators: Only vessel on the fleet that can comfortably hold 120 guests.
 
 90' GRAND CANYON CATAMARAN | Cap: 200 | Catamaran | Best for: weddings, reunions, very large events
 Included: Full Mexican buffet (fajitas, shrimp pasta, ceviche, guacamole), premium liquor, beer, wine, juices, snorkel gear, kayak, paddleboards, lily pad, fishing rods, handcrafted tropical cocktails
 Highlights: Capacity for up to 200 guests, multi-level decks, blank canvas for custom decor or furniture
-Differentiators: The largest vessel on the entire fleet. For weddings, reunions, or any event where you need the whole group together on the water. The blank canvas deck setup allows for full event customization.
+Note: Departs from Marina Vallarta
+Differentiators: Largest vessel on the entire fleet. Blank canvas deck allows full event customization.
 
 70' AZIMUT BLUE | Cap: 15 | Motor Yacht | Best for: celebrations, corporate, luxury groups
 Included: Private chef with multi-course menu, premium open bar with spirits, wine, cocktails and mocktails, snorkel gear, kayak, paddleboard, lily pad, onboard WiFi
-Highlights: All-inclusive food and beverage as standard, onboard WiFi (one of the only vessels on the fleet), cockpit dining area overlooking the water
-Differentiators: One of only two vessels on the fleet where both private chef and premium open bar are fully included. The onboard WiFi makes it the top choice for corporate groups. The cockpit dining setup is one of the most refined on the bay.
+Highlights: All-inclusive food and beverage as standard, onboard WiFi, cockpit dining area overlooking the water
+Differentiators: One of only two vessels where both private chef and premium open bar are fully included. Only vessel with onboard WiFi.
 
-25' SEA RAY | Cap: 6 | Powerboat | Best for: very small groups, exploration, sightseeing
+25' SEA RAY | Cap: 6 | Powerboat | Best for: very small groups, exploration, sightseeing, couples
 Included: Water, ice, 12 beers, snorkel gear, fishing gear, lily pad, Bluetooth sound system
 Highlights: Easy beach access to south beaches and hidden coves, nimble and intimate, Bluetooth speaker
-Differentiators: The most intimate and affordable option on the fleet. For groups of 6 or fewer who want to explore the coastline at their own pace and get to spots that larger vessels simply cannot reach.
+Differentiators: Most intimate and affordable option. For groups of 6 or fewer who want to explore at their own pace.
 `;
 
-const SYSTEM_PROMPT = `You are a sales assistant for Vallarta Yacht Company (VYC), a premium yacht charter marketplace on Banderas Bay in Puerto Vallarta, Mexico.
+const SYSTEM_PROMPT = `You are a sales assistant for Vallarta Yacht Company (VYC), a premium yacht charter marketplace on Banderas Bay in Puerto Vallarta, Mexico. You are writing on behalf of the sales rep — warm, confident, local expert tone.
 
 Recommend exactly 3 vessels in this tiered structure:
 
 TIER 1 — Best overall fit: Best match for the client's experience type, group size, and highest available margin among good fits.
 TIER 2 — Best value: If Tier 1 is not a 40' or 42' Lagoon catamaran, offer the Lagoon as the value play if it fits the group size. If Tier 1 IS the Lagoon, offer another comparable value option at a similar or lower price point.
-TIER 3 — Step up: A vessel with more inclusions (full bar, chef-prepared meal, or premium experience) above the Tier 1 price point. This is the soft upsell — plant the seed.
+TIER 3 — Step up: A vessel with more inclusions (full bar, chef-prepared meal, or premium experience) above the Tier 1 price point. This is the soft upsell.
 
 MARGIN RANKING: Within each tier, always prefer vessels with higher margin over lower margin vessels when experience fit is equal.
 
 ${VESSEL_DATA}
 
-PRIORITY VESSELS — when these vessels fit the client, prefer them over alternatives:
-Primary: 47' Fountaine, 40' Lagoon, 42' Lagoon, 92' President, 90' Cheoy Lee, 85' Hot Tub Azimut, 51' Leopard, 50' Marquis
-These boats should be surfaced first whenever experience type, group size, and margin all support it.
+OUT OF COMMISSION — NEVER RECOMMEND THESE:
+- 85' Hot Tub Azimut
+- 40' Viking
+- 75' Hatteras
 
 EXPERIENCE MATCHING:
-- wedding/large celebration (20+ guests) = 90' Cheoy Lee (first choice), 56' Catamaran, 75' Hatteras, 51' Leopard
-- wedding/smaller celebration (under 20 guests) = 51' Leopard (first choice), 47' Fountaine, 70' Azimut Blue, 50' Marquis
 - bachelorette/bachelor = 40' Lagoon, 42' Lagoon, 56' Catamaran, 51' Leopard, 44' Leopard, 47' Leopard, 92' President
-- celebration/anniversary/birthday = 47' Fountaine, 47' Pajot, 90' Cheoy Lee, 122' Hatteras, 70' Azimut Blue
-- adventure/high energy = 92' President (first choice), 85' Hot Tub Azimut, 56' Catamaran, 44' Leopard, 64' Mikelson
+- wedding_large (20+ guests) = 90' Cheoy Lee (first choice), 56' Catamaran, 51' Leopard
+- wedding_small (under 20 guests) = 51' Leopard (first choice), 47' Fountaine, 70' Azimut Blue, 50' Marquis
+- wedding_weekend = 60' Custom Cat (first choice for welcome party), 90' Cheoy Lee, 90' Grand Canyon Cat
+- birthday = 92' President, 90' Cheoy Lee, 47' Pajot, 51' Leopard
+- celebration/anniversary = 47' Fountaine, 47' Pajot, 90' Cheoy Lee, 122' Hatteras, 70' Azimut Blue
+- adventure/high energy = 92' President (first choice), 56' Catamaran, 44' Leopard, 64' Mikelson
 - relaxed/light provisions = 40' Lagoon (first choice), 42' Lagoon, 43' Lagoon Power, 450F Lagoon, 44' Leopard, 47' Leopard, 65' Vitech, 74' Sunseeker
+- fishing = 64' Mikelson (first choice)
 - overnight = 47' Pajot, 47' Fountaine, 122' Hatteras, 70' Azimut Blue
-- bareboat/BYOF = 57' Bertram, 59' Azimut, 27' Sea Ray, 25' Sea Ray
-- fishing = 64' Mikelson (first choice), 40' Viking
 - corporate = 90' Cheoy Lee, 70' Azimut Blue, 51' Leopard, 122' Hatteras
-- large groups 25-50 = 90' Cheoy Lee (first choice), 75' Hatteras, 81' Sailboat, 51' Leopard, 56' Catamaran, 43' Lagoon Power
+- bareboat/BYOB = 57' Bertram, 59' Azimut, 27' Sea Ray, 25' Sea Ray
+- happyhour = 90' Cheoy Lee (first choice), 50' Marquis, 51' Leopard
+- large groups 25-50 = 90' Cheoy Lee (first choice), 81' Sailboat, 51' Leopard, 56' Catamaran, 43' Lagoon Power
 - large groups 50+ = 90' Grand Canyon Cat, 60' Custom Cat
 - small groups under 8 = 50' Marquis (first choice), 25' Sea Ray, 27' Sea Ray
-- Default to 6 hour duration unless otherwise specified
 
-PICKUP LOCATION LOGIC:
-The pickup code has already been determined from where the client is staying. Always reference the pickup location naturally in the proposal — e.g. "convenient pickup from Los Muertos Pier" or "easy departure from Marina Vallarta." This helps the client feel the logistics are already handled.
+PICKUP LOCATION GUIDANCE:
+The pickup location has been pre-determined. Reference it naturally in the email — e.g. "convenient pickup from Los Muertos Pier" or "easy departure from Marina Vallarta." This helps the client feel logistics are handled.
 
 RULES:
 - NEVER suggest a vessel where group size exceeds max capacity
-- NEVER suggest the 85' Azimut — it is currently out of commission
+- NEVER suggest the 85' Azimut, 40' Viking, or 75' Hatteras — all out of commission
 - Always surface 3 distinct vessels across the 3 tiers
 - The Step Up (Tier 3) should always have more inclusions than Tier 1
-- When two vessels fit equally well, always prefer the higher margin vessel
-- Tier 2 should almost always be the 40' or 42' Lagoon if the group fits — it is VYC's best value catamaran
-- If Lagoon is already Tier 1, Tier 2 should be the next best value option at a similar or lower price point
+- When two vessels fit equally well, prefer the higher margin vessel
+- Tier 2 should almost always be the 40' or 42' Lagoon if the group fits
+- The 56' Catamaran departs from La Cruz Marina — always flag this logistics note
+- The 60' Custom Cat departs from La Cruz Marina — always mention transportation can be arranged
 
-EMAIL TONE:
-- Warm, confident, local. Trusted expert, not a booking engine
-- Never use em dashes
+EMAIL TONE RULES:
+- Warm, confident, local expert. Not a booking engine.
+- Never use em dashes (use commas or periods instead)
 - Never say "unforgettable" or "once in a lifetime"
-- Reference the client's specific occasion or plans in the intro
-- Keep it concise
+- Never say "I'm Lindsey, CEO of..." — just say "I'm [rep name] with Seaside Pacific Yacht Group / Vallarta Yacht Company"
+- Reference the client's specific occasion, group details, or plans naturally in the intro
+- Keep descriptions concise and specific — highlight what makes each boat right for THIS client
+- For bachelorette/bachelor: mention the specific vibe (fun, social, on the water)
+- For weddings: acknowledge the celebration warmly
+- For fishing: lead with the fishing setup and crew knowledge
+- For BYOB groups: lead with freedom and flexibility
+- When the handoff type is "kyle": add one line acknowledging Kyle moved on to a new opportunity and you are the new point of contact
+- Keep the overall email tight and easy to read
 
 Respond ONLY with valid JSON, no other text:
 {
@@ -438,7 +491,8 @@ Respond ONLY with valid JSON, no other text:
       "sheetName": "exact sheet prefix",
       "capacity": "up to X",
       "why": "2-3 sentence personalized POV for this specific client",
-      "tags": ["tag1", "tag2"]
+      "tags": ["tag1", "tag2"],
+      "logisticsNote": "any important logistics note (e.g. La Cruz departure) or empty string"
     },
     {
       "tier": 2,
@@ -447,7 +501,8 @@ Respond ONLY with valid JSON, no other text:
       "sheetName": "exact sheet prefix",
       "capacity": "up to X",
       "why": "2-3 sentence personalized POV",
-      "tags": ["tag1", "tag2"]
+      "tags": ["tag1", "tag2"],
+      "logisticsNote": ""
     },
     {
       "tier": 3,
@@ -456,56 +511,95 @@ Respond ONLY with valid JSON, no other text:
       "sheetName": "exact sheet prefix",
       "capacity": "up to X",
       "why": "2-3 sentence personalized POV",
-      "tags": ["tag1", "tag2"]
+      "tags": ["tag1", "tag2"],
+      "logisticsNote": ""
     }
   ],
-  "emailSubject": "Your VYC Charter Recommendations",
-  "emailIntro": "2-3 sentence warm personalized intro referencing client name, occasion, and specific plans"
+  "emailSubject": "compelling subject line referencing occasion and date if known",
+  "emailIntro": "2-3 sentence warm personalized intro referencing client first name, occasion, group size, and any specific details shared. Use the handoff type context."
 }`;
 
 function getPickupCode(location) {
   if (!location) return 'PV';
   const l = location.toLowerCase();
 
-  // Punta Mita (PM)
   if (l.includes('punta mita') || l.includes('four seasons') || l.includes('st regis') ||
       l.includes('saint regis') || l.includes('conrad') || l.includes('w punta') ||
       l.includes('susurros') || l.includes('auberge') || l.includes('sufi') ||
-      l.includes('private villa') || l.includes('up north')) return 'PM';
+      l.includes('anclote') || l.includes('private villa') || l.includes('up north')) return 'PM';
 
-  // La Cruz / Bucerias / Sayulita (LC)
   if (l.includes('la cruz') || l.includes('bucerias') || l.includes('bucerías') ||
       l.includes('sayulita') || l.includes('dreams bahia') || l.includes('secrets bahia') ||
-      l.includes('iberostar') || l.includes('grand palladium')) return 'LC';
+      l.includes('iberostar') || l.includes('grand palladium') || l.includes('riviera nayarit')) return 'LC';
 
-  // Nuevo Vallarta (NV)
   if (l.includes('nuevo vallarta') || l.includes('hard rock') || l.includes('grand velas') ||
       l.includes('riu palace') || l.includes('riu vallarta') || l.includes('paradise village') ||
       l.includes('villa del palmar flamingos') || l.includes('krystal grand') ||
       l.includes('vidanta') || l.includes('grand luxxe') || l.includes('marival') ||
-      l.includes('30 minutes north') || l.includes('nayarit side')) return 'NV';
+      l.includes('nuevo') || l.includes('30 minutes north') || l.includes('nayarit side')) return 'NV';
 
-  // Los Muertos / Zona Romantica / Old Town (LM)
   if (l.includes('los muertos') || l.includes('zona romantica') || l.includes('zona romántica') ||
-      l.includes('romantic zone') || l.includes('old town') || l.includes('south side') ||
-      l.includes('southside') || l.includes('amapas') || l.includes('conchas chinas') ||
-      l.includes('almar') || l.includes('mousai') || l.includes('garza blanca') ||
-      l.includes('villa premiere') || l.includes('pinnacle') || l.includes('casa cupula') ||
-      l.includes('playa los arcos') || l.includes('tropicana') || l.includes('near the pier') ||
-      l.includes('airbnb') || l.includes('condo')) return 'LM';
+      l.includes('romantic zone') || l.includes('old town') || l.includes('old vallarta') ||
+      l.includes('south side') || l.includes('southside') || l.includes('amapas') ||
+      l.includes('conchas chinas') || l.includes('almar') || l.includes('mousai') ||
+      l.includes('garza blanca') || l.includes('villa premiere') || l.includes('pinnacle') ||
+      l.includes('casa cupula') || l.includes('playa los arcos') || l.includes('tropicana') ||
+      l.includes('near the pier') || l.includes('airbnb') || l.includes('condo') ||
+      l.includes('secrets vallarta bay') || l.includes('dreams vallarta bay')) return 'LM';
 
-  // Marina Vallarta / Hotel Zone (PV) — default
   if (l.includes('marina') || l.includes('hotel zone') || l.includes('near the airport') ||
       l.includes('hyatt ziva') || l.includes('sheraton') || l.includes('velas vallarta') ||
       l.includes('fiesta americana') || l.includes('westin') || l.includes('melia') ||
-      l.includes('meliá')) return 'PV';
+      l.includes('meliá') || l.includes('hilton puerto vallarta') || l.includes('hilton pv') ||
+      l.includes('krystal') || l.includes('holiday inn')) return 'PV';
 
   return 'PV';
 }
 
 function getPickupLabel(code) {
-  const labels = { 'PV': 'Marina Vallarta', 'LM': 'Los Muertos Pier', 'NV': 'Nuevo Vallarta', 'LC': 'La Cruz Marina', 'PM': 'Punta Mita' };
+  const labels = {
+    'PV': 'Marina Vallarta',
+    'LM': 'Los Muertos Pier',
+    'NV': 'Nuevo Vallarta Marina',
+    'LC': 'La Cruz Marina',
+    'PM': 'Punta Mita (Sufi Pier or Anclote Beach)'
+  };
   return labels[code] || code;
+}
+
+function getPickupShortLabel(code) {
+  const labels = {
+    'PV': 'Marina Vallarta',
+    'LM': 'Los Muertos Pier',
+    'NV': 'Nuevo Vallarta',
+    'LC': 'La Cruz Marina',
+    'PM': 'Punta Mita'
+  };
+  return labels[code] || code;
+}
+
+function getActiveOffers() {
+  const offers = [];
+  if (document.getElementById('offerDecorations').checked) {
+    offers.push('Free decoration package included with any May booking (applies to any future charter date)');
+  }
+  if (document.getElementById('offerDiscount').checked) {
+    offers.push('10% off any charter totaling $2,500 or more when booked in May (applies to any future charter date)');
+  }
+  if (document.getElementById('offerExtraHour').checked) {
+    offers.push('Extra hour on the 15\' Marquee available for May charters');
+  }
+  return offers;
+}
+
+function getDropoffNote(dropoff) {
+  if (dropoff === 'losmuertos') {
+    return 'Drop-off at Los Muertos Pier at the end of the charter (fee varies by vessel). Great if your group wants to head straight to dinner or a night out in Zona Romantica.';
+  }
+  if (dropoff === 'puntamita') {
+    return 'Drop-off in Punta Mita at the end of the charter (fee varies by vessel). We organize a small panga (water taxi) to bring your group from the yacht to Sufi Pier or Anclote Beach. No need to coordinate separate transportation.';
+  }
+  return '';
 }
 
 async function fetchPricing(sheetName, guests, pickup, duration) {
@@ -533,6 +627,10 @@ async function generateProposal() {
   const durationVal = document.getElementById('duration').value;
   const vesselType = document.getElementById('vesselType').value;
   const notes = document.getElementById('notes').value.trim();
+  const repName = document.getElementById('repName').value.trim() || 'Lindsey';
+  const handoffType = document.getElementById('handoffType').value;
+  const dropoff = document.getElementById('dropoff').value;
+  const activeOffers = getActiveOffers();
 
   const errorDiv = document.getElementById('errorMsg');
   errorDiv.style.display = 'none';
@@ -546,23 +644,43 @@ async function generateProposal() {
   const duration = durationVal && durationVal !== 'overnight' ? parseInt(durationVal) : 6;
   const pickupCode = getPickupCode(location);
   const pickupLabel = getPickupLabel(pickupCode);
+  const pickupShort = getPickupShortLabel(pickupCode);
+  const dropoffNote = getDropoffNote(dropoff);
 
   const btn = document.getElementById('generateBtn');
   btn.disabled = true;
   document.getElementById('loading').style.display = 'block';
   document.getElementById('output').style.display = 'none';
 
+  const handoffContext = handoffType === 'kyle'
+    ? 'Kyle has moved on to a new opportunity. Add one natural line acknowledging this and positioning the rep as the new point of contact.'
+    : handoffType === 'followup'
+    ? 'This is a follow-up to a prior conversation. Reference continuity.'
+    : 'Fresh intro. No prior relationship with the client.';
+
+  const offersContext = activeOffers.length > 0
+    ? `\n\nACTIVE MAY OFFERS TO INCLUDE IN EMAIL:\n${activeOffers.join('\n')}\nInclude these offers naturally at the end of the email before the closing line.`
+    : '';
+
+  const dropoffContext = dropoffNote
+    ? `\n\nDROP-OFF OPTION: ${dropoffNote}\nMention this as an available add-on.`
+    : '';
+
   const userPrompt = `CLIENT LEAD:
-- Name: ${name}
+- First Name: ${name}
 - Charter Date: ${date || 'Not specified'}
 - Guests: ${guests}
-- Staying: ${location || 'Not specified'} (Pickup: ${pickupCode} = ${pickupLabel})
+- Staying: ${location || 'Not specified'} (Pickup: ${pickupCode} = ${pickupShort})
 - Experience: ${experience}
 - Duration: ${durationVal || '6 hours'}
 - Vessel Preference: ${vesselType || 'No preference'}
+- Handoff Context: ${handoffContext}
+- Rep Name: ${repName}
 - Notes: ${notes || 'None'}
+${offersContext}
+${dropoffContext}
 
-Recommend 3 vessels in the tiered structure (Best Fit, Best Value, Step Up).`;
+Recommend 3 vessels in the tiered structure (Best Fit, Best Value, Step Up). The email sign-off should be from ${repName}, Seaside Pacific Yacht Group.`;
 
   try {
     const response = await fetch('https://vyc-proxy.corbittlm97.workers.dev/', {
@@ -570,19 +688,18 @@ Recommend 3 vessels in the tiered structure (Best Fit, Best Value, Step Up).`;
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         model: 'claude-sonnet-4-20250514',
-        max_tokens: 2000,
+        max_tokens: 2500,
         system: SYSTEM_PROMPT,
         messages: [{ role: 'user', content: userPrompt }]
       })
     });
 
     const data = await response.json();
-    
-    // Debug: check what came back
+
     if (!data.content) {
       throw new Error('Worker error: ' + JSON.stringify(data));
     }
-    
+
     const textContent = data.content.filter(b => b.type === 'text').map(b => b.text).join('');
 
     let parsed;
@@ -599,29 +716,42 @@ Recommend 3 vessels in the tiered structure (Best Fit, Best Value, Step Up).`;
     );
     parsed.vessels = parsed.vessels.map((v, i) => ({ ...v, pricing: pricingResults[i] }));
 
-    // Build email body
+    // Build vessel blocks for email
     const vesselBlocks = parsed.vessels.map((v) => {
       const p = v.pricing;
-      const priceStr = p ? `$${p.totalPrice.toLocaleString()}` : 'Pricing TBD';
+      const priceStr = p ? `$${p.totalPrice.toLocaleString()}` : 'Pricing on request';
       const extraNote = p && p.extraPax > 0 ? ` (includes ${p.extraPax} extra guest${p.extraPax > 1 ? 's' : ''})` : '';
-      const tierNote = v.tier === 2 ? ' — Best Value' : v.tier === 3 ? ' — Step Up Option' : '';
-      return `- - - - - - - - - -\n${v.name}${tierNote}\n${priceStr} | ${duration} hours | ${pickupLabel} pickup${extraNote}\n\n${v.why}`;
+      const tierNote = v.tier === 2 ? ' -- Best Value' : v.tier === 3 ? ' -- Step Up' : '';
+      const logNote = v.logisticsNote ? `\nNote: ${v.logisticsNote}` : '';
+      return `----------\n${v.name}${tierNote}\n${priceStr} | ${duration} hours | ${pickupShort} pickup${extraNote}${logNote}\n\n${v.why}`;
     }).join('\n\n');
 
+    // Build offers section
+    const offersSection = activeOffers.length > 0
+      ? `\n\nWe also have a few special offers running this month:\n${activeOffers.map(o => `- ${o}`).join('\n')}`
+      : '';
+
+    // Build drop-off section
+    const dropoffSection = dropoffNote
+      ? `\n\nOne add-on worth mentioning: ${dropoffNote}`
+      : '';
+
+    // Build full email
     const emailBody = `${parsed.emailIntro}
 
-Each attachment covers the full experience, what's included, and available add-ons.
+Each attachment covers the full experience, what is included, and available add-ons.
 
 ${vesselBlocks}
 
-- - - - - - - - - -
+----------
+${offersSection}${dropoffSection}
 
 Availability is current as of today. Once you select the option that feels right, we will place a soft hold and you will have 48 hours to secure your date with a 50% deposit.
 
 Let me know if you have any questions or want to talk through the options.
 
-[Your name]
-Vallarta Yacht Company
+${repName}
+Seaside Pacific Yacht Group
 513-368-4153
 bookings@vallartayachtcompany.com`;
 
@@ -648,9 +778,10 @@ bookings@vallartayachtcompany.com`;
             <span class="margin-pill ${marginClass}">$${p.margin.toLocaleString()}</span>
             <span class="margin-pill ${marginClass}">${p.marginPct}% margin</span>
           </div>
-          <div class="vessel-pricing-note">${duration}hr | ${pickupLabel}${extraNote}</div>
-          ` : `<div class="vessel-pricing-note" style="color:#cc0000;">Pricing unavailable</div>`}
+          <div class="vessel-pricing-note">${duration}hr | ${pickupShort}${extraNote}</div>
+          ` : `<div class="vessel-pricing-note" style="color:#cc0000;">Pricing unavailable from sheet</div>`}
           <div class="vessel-why">${v.why}</div>
+          ${v.logisticsNote ? `<div class="vessel-pricing-note" style="color:#8a6a00;margin-top:4px;">Note: ${v.logisticsNote}</div>` : ''}
           <div class="vessel-tags">${(v.tags || []).map(t => `<span class="vessel-tag">${t}</span>`).join('')}</div>
         </div>
       `;
