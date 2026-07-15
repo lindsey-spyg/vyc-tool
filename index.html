@@ -114,6 +114,11 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
 .sel-count strong { color:var(--navy); }
 .email-actions { display:flex; gap:10px; align-items:center; padding:0 0 16px; flex-wrap:wrap; }
 .fee-note { font-size:11px; color:#888; font-style:italic; margin-top:4px; }
+.pickup-chip { padding:8px 14px; border-radius:20px; font-size:13px; font-weight:500; border:1.5px solid var(--border); background:white; color:var(--grey); cursor:pointer; transition:all 0.15s; user-select:none; }
+.pickup-chip.active { background:var(--navy); color:white; border-color:var(--navy); }
+.vessel-prices { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+.vessel-price-row { display:flex; align-items:center; gap:6px; }
+.pickup-tag { font-size:9px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#888; }
 </style>
 </head>
 <body>
@@ -140,15 +145,22 @@ body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; backg
     <div class="step-title">New Lead</div>
     <div class="step-sub">Enter client details to get started</div>
     <div class="field"><label>Client Name *</label><input type="text" id="f-name" placeholder="e.g. Alli Johnson" /></div>
-    <div class="field-row">
-      <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="email@example.com" /></div>
-      <div class="field"><label>Phone</label><input type="tel" id="f-phone" placeholder="555-123-4567" /></div>
-    </div>
+    <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="email@example.com" /></div>
     <div class="field-row">
       <div class="field"><label>Charter Date</label><input type="text" id="f-date" placeholder="e.g. Oct 14, 2026" /></div>
       <div class="field"><label>No. of Guests *</label><input type="number" id="f-guests" placeholder="e.g. 10" min="1" /></div>
     </div>
     <div class="field"><label>Where are they staying?</label><input type="text" id="f-location" placeholder="e.g. Hard Rock Vallarta" /></div>
+    <div class="field">
+      <label>Pickup Location(s) — select all that apply</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;" id="pickup-selector">
+        <div class="pickup-chip active" onclick="togglePickup('PV',this)">Marina Vallarta</div>
+        <div class="pickup-chip" onclick="togglePickup('LM',this)">Los Muertos</div>
+        <div class="pickup-chip" onclick="togglePickup('NV',this)">Nuevo Vallarta</div>
+        <div class="pickup-chip" onclick="togglePickup('LC',this)">La Cruz</div>
+        <div class="pickup-chip" onclick="togglePickup('PM',this)">Punta Mita</div>
+      </div>
+    </div>
     <div class="field">
       <label>Experience Type</label>
       <select id="f-experience">
@@ -351,11 +363,25 @@ const VESSEL_DESCRIPTIONS = {
 
 let state = {
   currentStep:1, lead:{}, pickupCode:'PV', pickupLabel:'Marina Vallarta',
+  selectedPickups:['PV'], // array of selected pickup codes
   duration:6, mode:'complete', vessels:[], selectedVessels:[],
   altDuration:null, altPickup:null, altPricing:{},
   universalAddons:{ decorations:false }, dynamicUniversal:{},
   vesselAddons:{}, emailSubject:'', emailBody:''
 };
+
+function togglePickup(code, el) {
+  const idx = state.selectedPickups.indexOf(code);
+  if (idx >= 0 && state.selectedPickups.length > 1) {
+    state.selectedPickups.splice(idx, 1);
+    el.classList.remove('active');
+  } else if (idx < 0) {
+    state.selectedPickups.push(code);
+    el.classList.add('active');
+  }
+}
+
+const PICKUP_LABELS = { PV:'Marina Vallarta', LM:'Los Muertos', NV:'Nuevo Vallarta', LC:'La Cruz', PM:'Punta Mita' };
 
 function detectPickup(location) {
   if (!location) return {code:'PV',label:'Marina Vallarta'};
@@ -444,9 +470,10 @@ async function goToStep2() {
     notes: document.getElementById('f-notes').value.trim()
   };
 
-  const pickup = detectPickup(state.lead.location);
-  state.pickupCode = pickup.code;
-  state.pickupLabel = pickup.label;
+  // Use manually selected pickups, but auto-detect if none manually changed
+  if (state.selectedPickups.length === 0) state.selectedPickups = ['PV'];
+  state.pickupCode = state.selectedPickups[0];
+  state.pickupLabel = PICKUP_LABELS[state.pickupCode] || 'Marina Vallarta';
   state.duration = parseInt(state.lead.duration)||6;
   state.mode = (state.lead.experience||state.lead.location) ? 'complete' : 'discovery';
 
@@ -458,14 +485,42 @@ async function loadVessels() {
   const list = document.getElementById('vessel-list');
   list.innerHTML = '<div class="loading"><div class="loading-text">Loading vessels...</div><div class="dots"><span></span><span></span><span></span></div></div>';
   try {
-    const url = `${PRICING_API}?action=vessels&guests=${state.lead.guests}&pickup=${state.pickupCode}&duration=${state.duration}`;
-    const res = await fetch(url);
-    const data = await res.json();
-    if (data.error) throw new Error(data.error);
-    state.vessels = data.vessels||[];
+    // Fetch pricing for all selected pickups in parallel
+    const pickupResults = await Promise.all(
+      state.selectedPickups.map(async (pickup) => {
+        const url = `${PRICING_API}?action=vessels&guests=${state.lead.guests}&pickup=${pickup}&duration=${state.duration}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        return { pickup, vessels: data.vessels || [] };
+      })
+    );
 
+    // Merge vessels — combine prices from different pickups into same vessel entry
+    const vesselMap = {};
+    for (const { pickup, vessels } of pickupResults) {
+      for (const v of vessels) {
+        if (!vesselMap[v.boatName]) {
+          vesselMap[v.boatName] = { ...v, pickupPrices: {} };
+        }
+        vesselMap[v.boatName].pickupPrices[pickup] = {
+          totalPrice: v.totalPrice,
+          margin: v.margin,
+          marginPct: v.marginPct
+        };
+      }
+    }
+
+    state.vessels = Object.values(vesselMap);
+    // Sort by best margin across all pickups
+    state.vessels.sort((a, b) => {
+      const aMax = Math.max(...Object.values(a.pickupPrices).map(p => p.marginPct));
+      const bMax = Math.max(...Object.values(b.pickupPrices).map(p => p.marginPct));
+      return bMax - aMax;
+    });
+
+    const pickupLabels = state.selectedPickups.map(p => PICKUP_LABELS[p]).join(', ');
     document.getElementById('lead-summary').innerHTML =
-      `<strong>${state.lead.name}</strong> &nbsp;·&nbsp; ${state.lead.guests} guests &nbsp;·&nbsp; ${state.duration}hr &nbsp;·&nbsp; ${state.pickupLabel} pickup${state.lead.date?' &nbsp;·&nbsp; '+state.lead.date:''}`;
+      `<strong>${state.lead.name}</strong> &nbsp;·&nbsp; ${state.lead.guests} guests &nbsp;·&nbsp; ${state.duration}hr &nbsp;·&nbsp; ${pickupLabels}${state.lead.date?' &nbsp;·&nbsp; '+state.lead.date:''}`;
 
     const badge = document.getElementById('mode-badge');
     badge.innerHTML = state.mode==='complete'
@@ -488,6 +543,14 @@ function renderVessels(vessels) {
     const mClass = marginClass(v.marginPct);
     const dName = displayName(v.boatName);
     const desc = VESSEL_DESCRIPTIONS[v.boatName]||'';
+    // Build price display for all selected pickups
+    const priceEntries = Object.entries(v.pickupPrices || {});
+    const bestMargin = priceEntries.length > 0 ? Math.max(...priceEntries.map(([,p]) => p.marginPct)) : v.marginPct;
+    const bMClass = marginClass(bestMargin);
+    const pricesHTML = priceEntries.length > 0
+      ? priceEntries.map(([pickup, p]) => `<div class="vessel-price-row"><span class="pickup-tag">${PICKUP_LABELS[pickup]||pickup}</span><span style="font-size:15px;font-weight:700;color:var(--navy);">$${p.totalPrice.toLocaleString()}</span></div>`).join('')
+      : `<div class="vessel-price-row"><span style="font-size:17px;font-weight:700;color:var(--navy);">$${v.totalPrice.toLocaleString()}</span></div>`;
+
     return `<div class="vessel-card ${isSelected?'selected':''}" onclick="toggleVessel('${v.boatName.replace(/'/g,"\\'")}')">
       <div class="vessel-card-header">
         <div class="vessel-checkbox"></div>
@@ -496,8 +559,8 @@ function renderVessels(vessels) {
           <div class="vessel-cap">Up to ${v.maxCapacity} guests</div>
         </div>
         <div class="vessel-right">
-          <div class="vessel-price">$${v.totalPrice.toLocaleString()}</div>
-          <div class="vessel-margin ${mClass}">$${v.margin.toLocaleString()} · ${v.marginPct}%</div>
+          <div class="vessel-prices">${pricesHTML}</div>
+          <div class="vessel-margin ${bMClass}" style="margin-top:4px;">margin ${bestMargin}%</div>
           <div class="fee-note">incl. fees</div>
         </div>
       </div>
@@ -796,7 +859,10 @@ function startOver() {
     universalAddons:{decorations:false}, dynamicUniversal:{},
     vesselAddons:{}, emailSubject:'', emailBody:''
   };
-  ['f-name','f-email','f-phone','f-date','f-guests','f-location','f-notes'].forEach(id=>document.getElementById(id).value='');
+  ['f-name','f-email','f-date','f-guests','f-location','f-notes'].forEach(id=>document.getElementById(id).value='');
+  state.selectedPickups = ['PV'];
+  document.querySelectorAll('.pickup-chip').forEach(c=>c.classList.remove('active'));
+  document.querySelector('.pickup-chip')?.classList.add('active');
   ['f-experience','f-duration','f-vessel-pref'].forEach(id=>document.getElementById(id).selectedIndex=0);
   goToStep(1);
 }
