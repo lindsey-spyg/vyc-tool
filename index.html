@@ -776,9 +776,7 @@ ${addonLines.length>0?'Vessel upgrades:\n'+addonLines.join('\n'):''}
 ${universalLines.length>0?'Universal add-ons:\n'+universalLines.join('\n'):''}`;
     }).join('\n\n');
 
-    const isDiscovery = state.mode==='discovery';
-
-    const prompt = `You are a sales rep for Vallarta Yacht Company. Draft a proposal email.
+    const prompt = `You are Lindsey Corbitt, owner of Vallarta Yacht Company. Write a proposal email that matches your real writing style exactly. You have reviewed 20+ of your real sent emails and must match the patterns below precisely.
 
 CLIENT:
 - Name: ${state.lead.name}
@@ -789,26 +787,1013 @@ CLIENT:
 - Duration: ${state.duration} hours
 - Notes: ${state.lead.notes||'None'}
 
-MODE: ${isDiscovery?'DISCOVERY — write a warm discovery email showing price ranges across experience tiers. Invite them to share what resonates. Do NOT list specific vessels.':'COMPLETE — write a full proposal with all vessels listed.'}
+VESSELS TO INCLUDE:
+${vesselBlocks}
 
-${!isDiscovery?`VESSELS:\n${vesselBlocks}`:`PRICE RANGES:\nBareboat from ~$1,000. Mid-range with food and drinks from ~$2,000. Premium all-inclusive with private chef and open bar from ~$3,500+.`}
+REAL EMAIL PATTERNS — extracted from 20+ sent proposals:
 
-RULES:
-- Address by first name
-- Warm, confident, local — trusted expert not a booking engine
-- NEVER use em dashes
-- NEVER say "unforgettable" or "once in a lifetime"
-- NEVER use vessel proper names or nicknames — only the display name provided (e.g. "47' Fountaine" not "Fountaine Pajot")
-- Reference their specific occasion or notes in the intro
-- For each vessel: Display Name | Price | Duration | Pickup
-- One sentence POV per vessel highlighting what makes it stand out vs the others
-- If alternate pricing exists, show it clearly below the main price
-- If upgrades are selected, mention them naturally
-- If decorations package is included, mention it as a complimentary touch
-- End: "Let me know if you have any questions or want to talk through the options."
-- Footer: "All pricing includes taxes and processing fees. Gratuity is the only separate charge."
-- Sign off: [Your name] / Vallarta Yacht Company / 513-368-4153 / bookings@vallartayachtcompany.com
-- Respond with JSON only: {"subject":"...","body":"..."}`;
+INTRO PATTERNS (choose based on context):
+- First contact, morning: "Good Morning [Name], This is Lindsey with Vallarta Yacht Company, thank you for reaching out! [One sentence recap of their request]."
+- First contact, evening: "Good Evening [Name], This is Lindsey with Vallarta Yacht Company. [One sentence about the occasion]."
+- After a call: "Hi [Name], It was great speaking with you -- [brief recap of what they're planning]!"
+- Celebration/special occasion: acknowledge it warmly in 1-2 sentences before getting into options
+- Always establish pickup context early if relevant: "Since you are staying at [Hotel], [Marina] is [right next door / the most convenient pickup]."
+
+STANDARD LINES (use all of these):
+- "All pricing includes taxes and processing fees. Gratuity is the only separate charge." -- always include this near the top
+- "Attachments provide additional details and photos of each vessel." -- always include before vessel list
+- "A 50% deposit locks in your date and vessel." -- include near closing
+
+VESSEL FORMAT:
+Option A -- Single duration:
+[Vessel Name] | [Pickup Location]
+[One sentence honest POV]
+- Inclusions summary
+Price: $X,XXX
+
+Option B -- Multiple durations shown (use when showing 4hr vs 6hr etc):
+[Vessel Name] | [Pickup Location]
+[One sentence honest POV]
+- 4 Hours: $X,XXX -- [brief inclusions for that duration]
+- 6 Hours: $X,XXX -- [brief inclusions for that duration]
+
+Option C -- Detailed inclusions format (use for adventure/luxury groups):
+[Vessel Name]
+Price: $X,XXX | X Hours | [Pickup] Pickup
+[2-3 sentence POV specific to this client]
+
+Inclusions:
+- [Food items]
+- [Beverages]
+- On the water: [water toys/activities]
+
+Upgrade available:
++ [Upgrade name]: $[price] ($[per person price]/person)
+
+INCLUSIONS FORMAT:
+- Keep it conversational and brief unless doing the detailed format
+- Condensed example: "Welcome margaritas, ceviche and guacamole, standard house bar, paddleboards, snorkel gear, fishing rods, and lily pad."
+- Detailed example (for luxury/adventure): break into food, beverages, on the water as separate bullets
+
+POV PHRASES LINDSEY ACTUALLY USES:
+- "A fan favorite vessel and experience."
+- "A step up in every way --"
+- "The most fully loaded option on this list"
+- "honestly, for a [type] group, the [feature] alone changes the day"
+- "None of these options will lack when it comes to [quality/experience]"
+- "Could be a perfect [occasion] for [context]"
+- "I tried to give you a range of [options]"
+- Uses -- (double dash) never em dashes
+
+CLOSING PATTERNS (use one of these, not all):
+- "Do any of these options resonate with what you were looking for?"
+- "Do any of these options resonate with what you are looking for?"  
+- "Let me know your thoughts on the above and if you have any questions! We would be honored to host your celebration."
+- "Let me know if you have any questions or want to talk through the options."
+- "Happy to hop on a quick call to discuss!"
+
+THEN ADD:
+- "How do these options compare to what you are envisioning for the day? We are happy to make any adjustments -- whether that is a different vessel, duration, or inclusions."
+- "We have been on the water since 2007 and work exclusively with the top 50 vessels on Banderas Bay to ensure every charter delivers on quality and service."
+- "A 50% deposit locks in your date and vessel."
+
+SIGN OFF (always exactly this format):
+Best,
+
+[Your name]
+Vallarta Yacht Company
+(980) 655-4737
+
+ADDITIONAL RULES:
+- Use "Good Morning" or "Good Evening" when time context is clear, otherwise "Hi"
+- NEVER use em dashes -- use -- (double dash) instead
+- NEVER say "unforgettable" or "once in a lifetime"  
+- NEVER use vessel proper boat names or nicknames -- only the display name provided
+- NEVER write price ranges or "starting from" -- always exact dollar amounts
+- If alternate pricing exists, show both as bullet points under the vessel
+- If upgrades selected, add as: "Upgrade available: + [name]: $[price]"
+- If decorations package selected: "+ Complimentary decorations package (balloons + signage)"
+- Match the energy to the occasion -- weddings get more warmth, adventure groups get more excitement, relaxed cruises get a calmer tone
+- Keep it concise -- Lindsey's emails are never long-winded
+
+Respond with JSON only, no other text: {"subject":"...","body":"..."}`;e="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>VYC Proposal Generator v2</title>
+<style>
+:root {
+  --navy: #192750; --gold: #c9a96e; --cream: #FFFAF6;
+  --grey: #4A4A4A; --border: #ddd5c8; --light: #f5f0e8;
+  --green: #2a7a4a; --red: #cc3333; --radius: 12px;
+  --shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+body { font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif; background:var(--cream); color:var(--grey); min-height:100vh; font-size:15px; }
+.app { max-width:640px; margin:0 auto; padding:0 0 80px; }
+.topbar { background:var(--navy); padding:16px 20px; position:sticky; top:0; z-index:100; display:flex; align-items:center; justify-content:space-between; }
+.topbar-title { color:white; font-size:16px; font-weight:600; }
+.topbar-sub { color:var(--gold); font-size:10px; letter-spacing:2px; text-transform:uppercase; }
+.step-indicator { display:flex; padding:16px 20px; gap:6px; background:white; border-bottom:1px solid var(--border); }
+.step-dot { flex:1; height:3px; background:var(--border); border-radius:2px; transition:background 0.3s; }
+.step-dot.active { background:var(--gold); }
+.step-dot.done { background:var(--navy); }
+.step { display:none; padding:20px; }
+.step.visible { display:block; }
+.step-title { font-size:20px; font-weight:600; color:var(--navy); margin-bottom:4px; }
+.step-sub { font-size:13px; color:#888; margin-bottom:20px; }
+.field { margin-bottom:16px; }
+.field label { display:block; font-size:11px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--navy); margin-bottom:6px; }
+.field input,.field select,.field textarea { width:100%; padding:12px 14px; border:1.5px solid var(--border); border-radius:var(--radius); font-size:15px; font-family:inherit; background:white; color:var(--grey); outline:none; transition:border-color 0.2s; appearance:none; }
+.field input:focus,.field select:focus,.field textarea:focus { border-color:var(--navy); }
+.field textarea { resize:vertical; min-height:80px; }
+.field-row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+.mode-badge { display:inline-flex; align-items:center; gap:6px; padding:6px 12px; border-radius:20px; font-size:12px; font-weight:600; margin-bottom:16px; }
+.mode-badge.complete { background:#e8f5ee; color:var(--green); }
+.mode-badge.discovery { background:#fff8e8; color:#8a6a00; }
+.vessel-list { display:flex; flex-direction:column; gap:12px; margin-bottom:20px; }
+.vessel-card { background:white; border:1.5px solid var(--border); border-radius:var(--radius); overflow:hidden; transition:border-color 0.2s,box-shadow 0.2s; cursor:pointer; }
+.vessel-card.selected { border-color:var(--navy); box-shadow:var(--shadow); }
+.vessel-card-header { display:flex; align-items:center; padding:14px 16px; gap:12px; }
+.vessel-checkbox { width:22px; height:22px; border:2px solid var(--border); border-radius:6px; display:flex; align-items:center; justify-content:center; flex-shrink:0; transition:all 0.2s; }
+.vessel-card.selected .vessel-checkbox { background:var(--navy); border-color:var(--navy); }
+.vessel-checkbox::after { content:'✓'; color:white; font-size:13px; font-weight:700; display:none; }
+.vessel-card.selected .vessel-checkbox::after { display:block; }
+.vessel-info { flex:1; }
+.vessel-name { font-size:15px; font-weight:600; color:var(--navy); }
+.vessel-cap { font-size:11px; color:#888; margin-top:1px; }
+.vessel-right { text-align:right; }
+.vessel-price { font-size:17px; font-weight:700; color:var(--navy); }
+.vessel-margin { display:inline-block; font-size:10px; font-weight:600; padding:2px 7px; border-radius:10px; margin-top:2px; }
+.m-high { background:#e8f5ee; color:var(--green); }
+.m-mid { background:#fff8e8; color:#8a6a00; }
+.m-low { background:#fdf0f0; color:var(--red); }
+.vessel-inclusions { padding:10px 16px 14px; font-size:12px; color:#666; line-height:1.6; display:none; border-top:1px solid var(--border); }
+.vessel-card.selected .vessel-inclusions { display:block; }
+.selected-summary { display:flex; flex-direction:column; gap:12px; margin-bottom:20px; }
+.summary-card { background:white; border:1.5px solid var(--navy); border-radius:var(--radius); overflow:hidden; }
+.summary-header { background:var(--navy); padding:10px 16px; display:flex; justify-content:space-between; align-items:center; }
+.summary-name { color:white; font-weight:600; font-size:15px; }
+.summary-price { color:var(--gold); font-weight:700; font-size:16px; }
+.summary-body { padding:14px 16px; }
+.summary-meta { font-size:12px; color:#888; margin-bottom:8px; }
+.summary-inclusions { font-size:12px; color:var(--grey); line-height:1.6; }
+.alt-pricing-box { background:var(--light); border-radius:var(--radius); padding:16px; margin-bottom:20px; }
+.alt-pricing-title { font-size:12px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--navy); margin-bottom:12px; }
+.alt-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.alt-row:last-child { margin-bottom:0; }
+.alt-label { font-size:13px; color:var(--grey); }
+.alt-selects { display:flex; gap:8px; }
+.alt-selects select { font-family:inherit; font-size:13px; padding:8px 10px; border:1.5px solid var(--border); border-radius:8px; background:white; color:var(--grey); outline:none; }
+.upgrade-section { margin-bottom:20px; }
+.upgrade-vessel-title { font-size:13px; font-weight:600; color:var(--navy); margin-bottom:8px; padding-bottom:6px; border-bottom:1px solid var(--border); }
+.upgrade-item { display:flex; align-items:center; justify-content:space-between; padding:10px 0; border-bottom:1px solid var(--border); gap:12px; }
+.upgrade-item:last-child { border-bottom:none; }
+.upgrade-left { flex:1; }
+.upgrade-label { font-size:13px; color:var(--grey); }
+.upgrade-desc { font-size:11px; color:#aaa; margin-top:2px; }
+.upgrade-price { font-size:13px; font-weight:600; color:var(--navy); white-space:nowrap; }
+.toggle { width:44px; height:26px; background:var(--border); border-radius:13px; position:relative; cursor:pointer; transition:background 0.2s; flex-shrink:0; }
+.toggle.on { background:var(--navy); }
+.toggle::after { content:''; position:absolute; width:20px; height:20px; background:white; border-radius:10px; top:3px; left:3px; transition:left 0.2s; box-shadow:0 1px 4px rgba(0,0,0,0.2); }
+.toggle.on::after { left:21px; }
+.universal-section { background:var(--light); border-radius:var(--radius); padding:14px 16px; margin-bottom:20px; }
+.universal-title { font-size:12px; font-weight:600; letter-spacing:1.5px; text-transform:uppercase; color:var(--gold); margin-bottom:10px; }
+.panga-alert { background:#fff8e8; border:1px solid var(--gold); border-radius:8px; padding:10px 14px; font-size:12px; color:#8a6a00; margin-bottom:12px; }
+.email-box { background:white; border:1.5px solid var(--border); border-radius:var(--radius); overflow:hidden; margin-bottom:16px; }
+.email-header { background:var(--navy); padding:14px 16px; }
+.email-subject-lbl { font-size:10px; letter-spacing:2px; text-transform:uppercase; color:var(--gold); margin-bottom:4px; }
+.email-subject { color:white; font-size:15px; font-weight:600; }
+.email-body { padding:16px; font-size:13px; line-height:1.85; white-space:pre-line; color:var(--grey); }
+.btn { width:100%; padding:16px; border:none; border-radius:var(--radius); font-size:15px; font-weight:600; cursor:pointer; transition:opacity 0.15s; }
+.btn-primary { background:var(--navy); color:white; }
+.btn-primary:hover { opacity:0.88; }
+.btn-primary:disabled { opacity:0.4; cursor:not-allowed; }
+.btn-secondary { background:white; color:var(--navy); border:1.5px solid var(--navy); margin-top:10px; }
+.btn-copy { background:var(--navy); color:white; border-radius:8px; padding:10px 20px; font-size:13px; font-weight:600; border:none; cursor:pointer; }
+.btn-copy.ok { background:var(--green); }
+.loading { text-align:center; padding:40px 20px; }
+.loading-text { color:var(--navy); font-size:16px; font-weight:500; margin-bottom:16px; }
+.dots { display:inline-flex; gap:6px; }
+.dots span { width:8px; height:8px; background:var(--gold); border-radius:50%; animation:bop 1.2s infinite; }
+.dots span:nth-child(2) { animation-delay:0.2s; }
+.dots span:nth-child(3) { animation-delay:0.4s; }
+@keyframes bop { 0%,80%,100%{transform:scale(0)} 40%{transform:scale(1)} }
+.err { background:#fff5f5; border:1px solid #ffcccc; border-radius:var(--radius); padding:14px 16px; color:var(--red); font-size:13px; margin-bottom:16px; display:none; }
+.info-box { background:var(--light); border-radius:var(--radius); padding:14px 16px; margin-bottom:16px; font-size:13px; color:var(--grey); line-height:1.6; }
+.legend { display:flex; gap:12px; margin-bottom:16px; flex-wrap:wrap; }
+.legend-item { display:flex; align-items:center; gap:5px; font-size:11px; color:#888; }
+.filter-bar { display:flex; gap:8px; overflow-x:auto; padding-bottom:4px; margin-bottom:16px; scrollbar-width:none; }
+.filter-bar::-webkit-scrollbar { display:none; }
+.filter-chip { padding:6px 14px; border-radius:20px; font-size:12px; font-weight:600; border:1.5px solid var(--border); background:white; color:var(--grey); cursor:pointer; white-space:nowrap; transition:all 0.15s; }
+.filter-chip.active { background:var(--navy); color:white; border-color:var(--navy); }
+.sel-count { font-size:13px; color:#888; margin-bottom:12px; }
+.sel-count strong { color:var(--navy); }
+.email-actions { display:flex; gap:10px; align-items:center; padding:0 0 16px; flex-wrap:wrap; }
+.fee-note { font-size:11px; color:#888; font-style:italic; margin-top:4px; }
+.pickup-chip { padding:8px 14px; border-radius:20px; font-size:13px; font-weight:500; border:1.5px solid var(--border); background:white; color:var(--grey); cursor:pointer; transition:all 0.15s; user-select:none; }
+.pickup-chip.active { background:var(--navy); color:white; border-color:var(--navy); }
+.vessel-prices { display:flex; flex-direction:column; align-items:flex-end; gap:3px; }
+.vessel-price-row { display:flex; align-items:center; gap:6px; }
+.pickup-tag { font-size:9px; font-weight:600; letter-spacing:1px; text-transform:uppercase; color:#888; }
+</style>
+</head>
+<body>
+<div class="app">
+  <div class="topbar">
+    <div>
+      <div class="topbar-sub">Vallarta Yacht Company</div>
+      <div class="topbar-title">Proposal Generator v2</div>
+    </div>
+    <div style="color:var(--gold);font-size:12px;font-weight:600;">INTERNAL</div>
+  </div>
+
+  <div class="step-indicator">
+    <div class="step-dot active" id="dot-1"></div>
+    <div class="step-dot" id="dot-2"></div>
+    <div class="step-dot" id="dot-3"></div>
+    <div class="step-dot" id="dot-4"></div>
+    <div class="step-dot" id="dot-5"></div>
+    <div class="step-dot" id="dot-6"></div>
+  </div>
+
+  <!-- STEP 1: LEAD FORM -->
+  <div class="step visible" id="step-1">
+    <div class="step-title">New Lead</div>
+    <div class="step-sub">Enter client details to get started</div>
+    <div class="field"><label>Client Name *</label><input type="text" id="f-name" placeholder="e.g. Alli Johnson" /></div>
+    <div class="field"><label>Email</label><input type="email" id="f-email" placeholder="email@example.com" /></div>
+    <div class="field-row">
+      <div class="field"><label>Charter Date</label><input type="text" id="f-date" placeholder="e.g. Oct 14, 2026" /></div>
+      <div class="field"><label>No. of Guests *</label><input type="number" id="f-guests" placeholder="e.g. 10" min="1" /></div>
+    </div>
+    <div class="field"><label>Where are they staying?</label><input type="text" id="f-location" placeholder="e.g. Hard Rock Vallarta" /></div>
+    <div class="field">
+      <label>Pickup Location(s) — select all that apply</label>
+      <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:4px;" id="pickup-selector">
+        <div class="pickup-chip active" onclick="togglePickup('PV',this)">Marina Vallarta</div>
+        <div class="pickup-chip" onclick="togglePickup('LM',this)">Los Muertos</div>
+        <div class="pickup-chip" onclick="togglePickup('NV',this)">Nuevo Vallarta</div>
+        <div class="pickup-chip" onclick="togglePickup('LC',this)">La Cruz</div>
+        <div class="pickup-chip" onclick="togglePickup('PM',this)">Punta Mita</div>
+      </div>
+    </div>
+    <div class="field">
+      <label>Experience Type</label>
+      <select id="f-experience">
+        <option value="">Select (optional)</option>
+        <option value="celebration">Special celebration (wedding, bachelorette, birthday)</option>
+        <option value="adventure">Full adventure — snorkeling, water toys, high energy</option>
+        <option value="relaxed">Relaxing cruise with light provisions</option>
+        <option value="overnight">Overnight excursion</option>
+        <option value="bareboat">Just a boat and captain — bringing own food/drinks</option>
+        <option value="fishing">Fishing charter</option>
+        <option value="corporate">Corporate outing</option>
+      </select>
+    </div>
+    <div class="field-row">
+      <div class="field">
+        <label>Duration</label>
+        <select id="f-duration">
+          <option value="6">6 hours</option>
+          <option value="4">4 hours</option>
+          <option value="8">8 hours</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Vessel Preference</label>
+        <select id="f-vessel-pref">
+          <option value="">No preference</option>
+          <option value="catamaran">Catamaran</option>
+          <option value="yacht">Yacht</option>
+        </select>
+      </div>
+    </div>
+    <div class="field"><label>Additional Notes</label><textarea id="f-notes" placeholder="Occasion, group vibe, kids, budget signals..."></textarea></div>
+    <div id="err-1" class="err"></div>
+    <button class="btn btn-primary" onclick="goToStep2()">Find Vessels →</button>
+  </div>
+
+  <!-- STEP 2: VESSEL SELECTION -->
+  <div class="step" id="step-2">
+    <div class="step-title">Select Vessels</div>
+    <div class="step-sub">Choose 2–4 options to present</div>
+    <div id="mode-badge"></div>
+    <div class="info-box" id="lead-summary"></div>
+    <div class="legend">
+      <div class="legend-item"><span class="vessel-margin m-high">36%</span> Strong (30%+)</div>
+      <div class="legend-item"><span class="vessel-margin m-mid">22%</span> Moderate (15-29%)</div>
+      <div class="legend-item"><span class="vessel-margin m-low">10%</span> Low (&lt;15%)</div>
+    </div>
+    <div class="filter-bar">
+      <div class="filter-chip active" onclick="filterVessels('all',this)">All</div>
+      <div class="filter-chip" onclick="filterVessels('catamaran',this)">Catamarans</div>
+      <div class="filter-chip" onclick="filterVessels('yacht',this)">Yachts</div>
+      <div class="filter-chip" onclick="filterVessels('fishing',this)">Fishing</div>
+      <div class="filter-chip" onclick="filterVessels('large',this)">Large (25+)</div>
+    </div>
+    <div class="sel-count" id="sel-count">Select up to 4 vessels</div>
+    <div class="vessel-list" id="vessel-list"></div>
+    <div id="err-2" class="err"></div>
+    <button class="btn btn-primary" onclick="goToStep3()">Confirm Selection →</button>
+    <button class="btn btn-secondary" onclick="goToStep(1)">← Back</button>
+  </div>
+
+  <!-- STEP 3: PRICING CONFIRMATION + ALTERNATE PRICING -->
+  <div class="step" id="step-3">
+    <div class="step-title">Confirm Pricing</div>
+    <div class="step-sub">Review pricing and add alternate options if needed</div>
+    <div class="selected-summary" id="pricing-summary"></div>
+
+    <div class="alt-pricing-box">
+      <div class="alt-pricing-title">Alternate Pricing (Optional)</div>
+      <div class="alt-row">
+        <div class="alt-label">Show alternate duration?</div>
+        <div class="alt-selects">
+          <select id="alt-duration">
+            <option value="">No</option>
+            <option value="4">Also show 4hr</option>
+            <option value="6">Also show 6hr</option>
+            <option value="8">Also show 8hr</option>
+          </select>
+        </div>
+      </div>
+      <div class="alt-row">
+        <div class="alt-label">Show alternate pickup?</div>
+        <div class="alt-selects">
+          <select id="alt-pickup">
+            <option value="">No</option>
+            <option value="PV">Marina Vallarta</option>
+            <option value="LM">Los Muertos Pier</option>
+            <option value="NV">Nuevo Vallarta</option>
+            <option value="LC">La Cruz Marina</option>
+            <option value="PM">Punta Mita</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div id="err-3" class="err"></div>
+    <button class="btn btn-primary" onclick="goToStep4()">Universal Add-Ons →</button>
+    <button class="btn btn-secondary" onclick="goToStep(2)">← Back</button>
+  </div>
+
+  <!-- STEP 4: UNIVERSAL UPGRADES -->
+  <div class="step" id="step-4">
+    <div class="step-title">Universal Add-Ons</div>
+    <div class="step-sub">These apply across all selected vessels</div>
+    <div id="panga-alert"></div>
+    <div class="universal-section">
+      <div class="universal-title">Available Add-Ons</div>
+      <div id="universal-upgrades-list">
+        <!-- Static decorations always shown -->
+        <div class="upgrade-item">
+          <div class="upgrade-left">
+            <div class="upgrade-label">Free Decorations Package</div>
+            <div class="upgrade-desc">Balloons and custom signage included at no charge</div>
+          </div>
+          <div class="upgrade-price">FREE</div>
+          <div class="toggle" id="toggle-decorations" onclick="toggleUniversal('decorations',this)"></div>
+        </div>
+      </div>
+    </div>
+    <div id="err-4" class="err"></div>
+    <button class="btn btn-primary" onclick="goToStep5()">Vessel Upgrades →</button>
+    <button class="btn btn-secondary" onclick="goToStep(3)">← Back</button>
+  </div>
+
+  <!-- STEP 5: VESSEL UPGRADES -->
+  <div class="step" id="step-5">
+    <div class="step-title">Vessel Upgrades</div>
+    <div class="step-sub">Select upgrades specific to each vessel</div>
+    <div id="vessel-upgrades"></div>
+    <div id="err-5" class="err"></div>
+    <button class="btn btn-primary" onclick="goToStep6()">Draft Proposal Email →</button>
+    <button class="btn btn-secondary" onclick="goToStep(4)">← Back</button>
+  </div>
+
+  <!-- STEP 6: EMAIL -->
+  <div class="step" id="step-6">
+    <div class="step-title">Proposal Email</div>
+    <div class="step-sub">Review and copy to send</div>
+    <div id="loading-email" class="loading" style="display:none;">
+      <div class="loading-text">Drafting your proposal...</div>
+      <div class="dots"><span></span><span></span><span></span></div>
+    </div>
+    <div id="email-output" style="display:none;">
+      <div class="email-box">
+        <div class="email-header">
+          <div class="email-subject-lbl">Subject</div>
+          <div class="email-subject" id="email-subject"></div>
+        </div>
+        <div class="email-body" id="email-body"></div>
+      </div>
+      <div class="email-actions">
+        <button class="btn-copy" id="btn-copy" onclick="copyEmail()">Copy Email</button>
+        <button class="btn btn-secondary" style="width:auto;padding:10px 20px;font-size:13px;" onclick="goToStep(5)">← Edit</button>
+        <button class="btn btn-secondary" style="width:auto;padding:10px 20px;font-size:13px;" onclick="startOver()">New Lead</button>
+      </div>
+    </div>
+    <div id="err-6" class="err"></div>
+  </div>
+</div>
+
+<script>
+const PRICING_API = 'https://script.google.com/macros/s/AKfycbxmI6NiUOMgrk8w-DV_atpWwaZ6EKqa76zcyDyKGt3hjaI5Kx8n58y3F86Jp9bPQtVJ/exec';
+const CLAUDE_PROXY = 'https://vyc-proxy.corbittlm97.workers.dev/';
+
+const VESSEL_DESCRIPTIONS = {
+  "47 ft. Fountaine Pajot": "Five star luxury on the water. The crew is incredibly attentive, the food and beverage are worth the price alone, and the dinghy gets your group to the most secluded beaches. Includes a whale hydrophone — one of the most unique features on the bay.",
+  "40' Lagoon Catamaran": "The best deal on the water if you want an exceptional day without the full dining menu or premium bar. Welcome margaritas, solid bar setup, and one of the best bow lounging nets on the bay.",
+  "42' Lagoon": "If you want a little more space than the 40', this is your boat. Great for families and celebrations. You still get light appetizers and a standard bar. Simple, fun, great value.",
+  "47' Pajot - RES": "The newest and most enticing experience on the bay. Private chef, onboard mixologist, and dinghy access to remote beaches and hidden coastal towns most guests never see.",
+  "92' President": "This yacht truly comes with it all for an enjoyable and exciting day on the water. A 3-story water slide, hot tub, snorkel gear, paddle boards, banana boat, and a floating mat.",
+  "64 ft. Mikelson Luxury Sport Motor Yacht": "The most fully equipped sport fishing setup on the bay. Pompanette chair, Penn reels, 8 rods, and a crew that knows exactly where the fish are running. The dinghy also doubles as a water taxi to hidden beaches.",
+  "50 Marquis 500": "Sleek, refined, and intimate. The only vessel that includes chef-prepared canapés on evening charters as a standard. Perfect for smaller groups who want something polished.",
+  "51' Leopard Powercat": "One of the widest catamarans on the bay at 25 feet. The food spread is more substantial than comparable catamarans — empanadas, ciabatta sandwiches, dessert tray. Exceptional deck space.",
+  "57 ft. Bertram": "The best option for groups who want to bring their own food and drinks. Full sound system, snorkel gear, paddleboards, and fishing rods included.",
+  "81' Sailboat": "A stunning sailboat with a hot tub on deck and capacity for 50. The eFoil experience is a unique add-on. Great for larger groups who want something visually impressive.",
+  "85' HotTub Azimut (not the same as 85 Azimut!)": "Hot tub AND water slide. The menu scales up automatically with duration. Great for groups who want adventure with some refinement.",
+  "90' Cheoy Lee": "One of the best event vessels on the bay. Dual-level deck space, full open bar up to 6 drinks per person included, and a salon that can host a full seated event.",
+  "122´ Hatteras Mega Yacht": "The most elevated experience in the fleet. Private chef, premium open bar, true white-glove service. For groups where the experience needs to match the occasion.",
+  "27' Sea Ray": "The most flexible and intimate option for small groups. Easy to navigate to beach clubs and tucked-away coves that larger vessels cannot reach.",
+  "43 FT Lagoon Power": "Smooth, stable power catamaran for larger groups. The power design gives a notably smoother ride than sailing catamarans.",
+  "Lagoon 450F Catamaran": "One of Lagoon's most popular models. Flybridge with panoramic views and seamless indoor-outdoor flow at a mid-range price point.",
+  "Azimut 54": "Sleek Italian design with a fully cushioned bow ideal for sunbathing. Menu gets more substantial the longer you book.",
+  "44' Leopard Cat": "Double the water toys — 2 kayaks and 2 paddleboards. Great for active groups who want plenty to do on the water.",
+  "47 ft. Leopard Catamaran": "Trampoline nets on the bow are a signature feature guests love. Walk-through swim platform makes getting in and out of the water easy.",
+  "52 Sea Ray": "Refined mid-size yacht with a wet bar in the shaded cockpit and a fully cushioned bow. One of the better sunbathing setups in the mid-range category.",
+  "56 FT CATAMARAN": "High-energy catamaran for large celebrations. Tropical cocktail bar included at the base price. Kid-friendly with smoothies for children onboard.",
+  "59 Azimut": "Clean motor yacht with a flybridge giving your group a 360 degree view of the bay. Great bareboat option for groups who want to bring their own setup.",
+  "60 FT  Custom Catamaran": "When the group is too big for anything else. Holds 120 guests with cushioned lounging throughout and a massive dining and bar area.",
+  "65 ft. Vitech": "Great for families and larger groups who want comfort and panoramic views. The shaded flybridge dining experience is one of the best on the bay.",
+  "74 ft. Sunseeker": "Elegant design with one of the better flybridge setups on the fleet. Distinct zones for dining, lounging, and water activities.",
+  "90 ft. Grand Canuwa (90ft. catamaran)": "The largest vessel on Banderas Bay. Built for weddings, reunions, and events where you need to hold the whole group. Multi-level decks serve as a blank canvas.",
+  "70 ft. Azimut  Blue": "Refined all-inclusive luxury with onboard WiFi. Private chef, premium open bar, and a cockpit dining setup overlooking the water. Top choice for corporate groups.",
+  "60' Mikelson": "The ultimate dual-purpose yacht. Pro-level fishing for 18 anglers or social cruising for 25 guests. Air-conditioned interior and onboard WiFi included.",
+  "60' Sea Ray": "A floating destination built for large-scale celebrations. Massive deck, sleek profile, and air-conditioned cabin. Comfortably hosts 30 guests.",
+  "50' Sea Ray": "The sweet spot between intimate luxury and a full celebration. Spacious enough for 20 guests with plenty of room. Refined enough for a high-end family getaway.",
+  "85' Luxury Azimut": "Sleek, powerful, and fully refurbished in 2024. Classic Azimut design with modern comfort. Expansive lounging areas and a crew that handles every detail.",
+  "46' Sunseeker": "A masterclass in space optimization and style. The Sunseeker pedigree speaks globally. Onboard WiFi included. Perfect for a bachelorette, family outing, or high-end day with close friends.",
+  "52' Azimut": "Legendary sleek lines and a spacious deck. Up to 16 guests with air-conditioned cabin and onboard WiFi. Snorkel gear, kayak, and water mat included."
+};
+
+let state = {
+  currentStep:1, lead:{}, pickupCode:'PV', pickupLabel:'Marina Vallarta',
+  selectedPickups:['PV'], // array of selected pickup codes
+  duration:6, mode:'complete', vessels:[], selectedVessels:[],
+  altDuration:null, altPickup:null, altPricing:{},
+  universalAddons:{ decorations:false }, dynamicUniversal:{},
+  vesselAddons:{}, emailSubject:'', emailBody:''
+};
+
+function togglePickup(code, el) {
+  const idx = state.selectedPickups.indexOf(code);
+  if (idx >= 0 && state.selectedPickups.length > 1) {
+    state.selectedPickups.splice(idx, 1);
+    el.classList.remove('active');
+  } else if (idx < 0) {
+    state.selectedPickups.push(code);
+    el.classList.add('active');
+  }
+}
+
+const PICKUP_LABELS = { PV:'Marina Vallarta', LM:'Los Muertos', NV:'Nuevo Vallarta', LC:'La Cruz', PM:'Punta Mita' };
+
+function detectPickup(location) {
+  if (!location) return {code:'PV',label:'Marina Vallarta'};
+  const l = location.toLowerCase();
+  if (l.includes('punta mita')||l.includes('four seasons')||l.includes('st regis')||l.includes('saint regis')||l.includes('conrad')||l.includes('w punta')||l.includes('susurros')||l.includes('sufi')) return {code:'PM',label:'Punta Mita'};
+  if (l.includes('la cruz')||l.includes('bucerias')||l.includes('bucerías')||l.includes('sayulita')||l.includes('dreams bahia')||l.includes('secrets bahia')||l.includes('iberostar')||l.includes('grand palladium')) return {code:'LC',label:'La Cruz Marina'};
+  if (l.includes('nuevo vallarta')||l.includes('hard rock')||l.includes('grand velas')||l.includes('riu palace')||l.includes('riu vallarta')||l.includes('paradise village')||l.includes('villa del palmar flamingos')||l.includes('krystal grand')||l.includes('vidanta')||l.includes('grand luxxe')||l.includes('marival')) return {code:'NV',label:'Nuevo Vallarta'};
+  if (l.includes('los muertos')||l.includes('zona romantica')||l.includes('romantic zone')||l.includes('old town')||l.includes('amapas')||l.includes('conchas chinas')||l.includes('almar')||l.includes('mousai')||l.includes('garza blanca')||l.includes('villa premiere')||l.includes('pinnacle')||l.includes('casa cupula')||l.includes('playa los arcos')||l.includes('tropicana')||l.includes('airbnb')||l.includes('condo')||l.includes('near the pier')) return {code:'LM',label:'Los Muertos Pier'};
+  if (l.includes('marina')||l.includes('hotel zone')||l.includes('hyatt ziva')||l.includes('sheraton')||l.includes('velas vallarta')||l.includes('fiesta americana')||l.includes('westin')||l.includes('melia')||l.includes('meliá')) return {code:'PV',label:'Marina Vallarta'};
+  return {code:'PV',label:'Marina Vallarta'};
+}
+
+function marginClass(pct) {
+  if (pct>=30) return 'm-high';
+  if (pct>=15) return 'm-mid';
+  return 'm-low';
+}
+
+function displayName(boatName) {
+  const nameMap = {
+    "47 ft. Fountaine Pajot":"47' Fountaine",
+    "40' Lagoon Catamaran":"40' Lagoon",
+    "42' Lagoon":"42' Lagoon",
+    "47' Pajot - RES":"47' Pajot",
+    "92' President":"92' President",
+    "64 ft. Mikelson Luxury Sport Motor Yacht":"64' Mikelson",
+    "50 Marquis 500":"50' Marquis",
+    "51' Leopard Powercat":"51' Leopard",
+    "57 ft. Bertram":"57' Bertram",
+    "81' Sailboat":"81' Sailboat",
+    "85' HotTub Azimut (not the same as 85 Azimut!)":"85' Hot Tub Azimut",
+    "90' Cheoy Lee":"90' Cheoy Lee",
+    "122´ Hatteras Mega Yacht":"122' Hatteras",
+    "27' Sea Ray":"27' Sea Ray",
+    "43 FT Lagoon Power":"43' Lagoon Power",
+    "Lagoon 450F Catamaran":"Lagoon 450F",
+    "Azimut 54":"54' Azimut",
+    "44' Leopard Cat":"44' Leopard",
+    "47 ft. Leopard Catamaran":"47' Leopard",
+    "52 Sea Ray":"52' Sea Ray",
+    "56 FT CATAMARAN":"56' Catamaran",
+    "59 Azimut":"59' Azimut",
+    "60 FT  Custom Catamaran":"60' Custom Catamaran",
+    "65 ft. Vitech":"65' Vitech",
+    "74 ft. Sunseeker":"74' Sunseeker",
+    "90 ft. Grand Canuwa (90ft. catamaran)":"90' Grand Canuwa",
+    "70 ft. Azimut  Blue":"70' Azimut Blue",
+    "60' Mikelson":"60' Mikelson",
+    "60' Sea Ray":"60' Sea Ray",
+    "50' Sea Ray":"50' Sea Ray",
+    "85' Luxury Azimut":"85' Luxury Azimut",
+    "46' Sunseeker":"46' Sunseeker",
+    "52' Azimut":"52' Azimut",
+    "85' HotTub Azimut":"85' Hot Tub Azimut"
+  };
+  return nameMap[boatName] || boatName;
+}
+
+function goToStep(n) {
+  document.getElementById(`step-${state.currentStep}`).classList.remove('visible');
+  state.currentStep = n;
+  document.getElementById(`step-${n}`).classList.add('visible');
+  for (let i=1;i<=6;i++) {
+    const dot = document.getElementById(`dot-${i}`);
+    dot.className = 'step-dot'+(i<n?' done':i===n?' active':'');
+  }
+  window.scrollTo(0,0);
+}
+
+async function goToStep2() {
+  const name = document.getElementById('f-name').value.trim();
+  const guests = parseInt(document.getElementById('f-guests').value)||0;
+  const err = document.getElementById('err-1');
+  if (!name||!guests) { err.textContent='Please enter client name and number of guests.'; err.style.display='block'; return; }
+  err.style.display='none';
+
+  state.lead = {
+    name, guests,
+    email: document.getElementById('f-email').value.trim(),
+    phone: '',
+    date: document.getElementById('f-date').value.trim(),
+    location: document.getElementById('f-location').value.trim(),
+    experience: document.getElementById('f-experience').value,
+    duration: document.getElementById('f-duration').value,
+    vesselPref: document.getElementById('f-vessel-pref').value,
+    notes: document.getElementById('f-notes').value.trim()
+  };
+
+  // Use manually selected pickups, but auto-detect if none manually changed
+  if (state.selectedPickups.length === 0) state.selectedPickups = ['PV'];
+  state.pickupCode = state.selectedPickups[0];
+  state.pickupLabel = PICKUP_LABELS[state.pickupCode] || 'Marina Vallarta';
+  state.duration = parseInt(state.lead.duration)||6;
+  state.mode = (state.lead.experience||state.lead.location) ? 'complete' : 'discovery';
+
+  goToStep(2);
+  await loadVessels();
+}
+
+async function loadVessels() {
+  const list = document.getElementById('vessel-list');
+  list.innerHTML = '<div class="loading"><div class="loading-text">Loading vessels...</div><div class="dots"><span></span><span></span><span></span></div></div>';
+  try {
+    // Fetch pricing for all selected pickups in parallel
+    const pickupResults = await Promise.all(
+      state.selectedPickups.map(async (pickup) => {
+        const url = `${PRICING_API}?action=vessels&guests=${state.lead.guests}&pickup=${pickup}&duration=${state.duration}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        return { pickup, vessels: data.vessels || [] };
+      })
+    );
+
+    // Merge vessels — combine prices from different pickups into same vessel entry
+    const vesselMap = {};
+    for (const { pickup, vessels } of pickupResults) {
+      for (const v of vessels) {
+        if (!vesselMap[v.boatName]) {
+          vesselMap[v.boatName] = { ...v, pickupPrices: {} };
+        }
+        vesselMap[v.boatName].pickupPrices[pickup] = {
+          totalPrice: v.totalPrice,
+          margin: v.margin,
+          marginPct: v.marginPct
+        };
+      }
+    }
+
+    state.vessels = Object.values(vesselMap);
+    // Sort by best margin across all pickups
+    state.vessels.sort((a, b) => {
+      const aMax = Math.max(...Object.values(a.pickupPrices).map(p => p.marginPct));
+      const bMax = Math.max(...Object.values(b.pickupPrices).map(p => p.marginPct));
+      return bMax - aMax;
+    });
+
+    const pickupLabels = state.selectedPickups.map(p => PICKUP_LABELS[p]).join(', ');
+    document.getElementById('lead-summary').innerHTML =
+      `<strong>${state.lead.name}</strong> &nbsp;·&nbsp; ${state.lead.guests} guests &nbsp;·&nbsp; ${state.duration}hr &nbsp;·&nbsp; ${pickupLabels}${state.lead.date?' &nbsp;·&nbsp; '+state.lead.date:''}`;
+
+    const badge = document.getElementById('mode-badge');
+    badge.innerHTML = state.mode==='complete'
+      ? '<div class="mode-badge complete">✓ Complete lead — full proposal mode</div>'
+      : '<div class="mode-badge discovery">◎ Incomplete lead — discovery email mode</div>';
+
+    renderVessels(state.vessels);
+  } catch(e) {
+    list.innerHTML='';
+    document.getElementById('err-2').textContent='Error loading vessels: '+e.message;
+    document.getElementById('err-2').style.display='block';
+  }
+}
+
+function renderVessels(vessels) {
+  const list = document.getElementById('vessel-list');
+  document.getElementById('sel-count').innerHTML = `<strong>${state.selectedVessels.length}</strong> of 4 vessels selected`;
+  list.innerHTML = vessels.map(v => {
+    const isSelected = state.selectedVessels.find(s=>s.boatName===v.boatName);
+    const mClass = marginClass(v.marginPct);
+    const dName = displayName(v.boatName);
+    const desc = VESSEL_DESCRIPTIONS[v.boatName]||'';
+    // Build price display for all selected pickups
+    const priceEntries = Object.entries(v.pickupPrices || {});
+    const bestMargin = priceEntries.length > 0 ? Math.max(...priceEntries.map(([,p]) => p.marginPct)) : v.marginPct;
+    const bMClass = marginClass(bestMargin);
+    const pricesHTML = priceEntries.length > 0
+      ? priceEntries.map(([pickup, p]) => `<div class="vessel-price-row"><span class="pickup-tag">${PICKUP_LABELS[pickup]||pickup}</span><span style="font-size:15px;font-weight:700;color:var(--navy);">$${p.totalPrice.toLocaleString()}</span></div>`).join('')
+      : `<div class="vessel-price-row"><span style="font-size:17px;font-weight:700;color:var(--navy);">$${v.totalPrice.toLocaleString()}</span></div>`;
+
+    return `<div class="vessel-card ${isSelected?'selected':''}" onclick="toggleVessel('${v.boatName.replace(/'/g,"\\'")}')">
+      <div class="vessel-card-header">
+        <div class="vessel-checkbox"></div>
+        <div class="vessel-info">
+          <div class="vessel-name">${dName}</div>
+          <div class="vessel-cap">Up to ${v.maxCapacity} guests</div>
+        </div>
+        <div class="vessel-right">
+          <div class="vessel-prices">${pricesHTML}</div>
+          <div class="vessel-margin ${bMClass}" style="margin-top:4px;">margin ${bestMargin}%</div>
+          <div class="fee-note">incl. fees</div>
+        </div>
+      </div>
+      ${isSelected&&desc?`<div class="vessel-inclusions">${desc}</div>`:''}
+    </div>`;
+  }).join('');
+}
+
+function filterVessels(type, el) {
+  document.querySelectorAll('.filter-chip').forEach(c=>c.classList.remove('active'));
+  el.classList.add('active');
+  let filtered = state.vessels;
+  if (type==='catamaran') filtered=state.vessels.filter(v=>v.boatName.toLowerCase().includes('lagoon')||v.boatName.toLowerCase().includes('cat')||v.boatName.toLowerCase().includes('pajot')||v.boatName.toLowerCase().includes('leopard'));
+  else if (type==='yacht') filtered=state.vessels.filter(v=>!v.boatName.toLowerCase().includes('lagoon')&&!v.boatName.toLowerCase().includes('pajot')&&!v.boatName.toLowerCase().includes('leopard'));
+  else if (type==='fishing') filtered=state.vessels.filter(v=>v.tourName.toLowerCase().includes('fishing')||v.boatName.toLowerCase().includes('mikelson')||v.boatName.toLowerCase().includes('viking'));
+  else if (type==='large') filtered=state.vessels.filter(v=>v.maxCapacity>=25);
+  renderVessels(filtered);
+}
+
+function toggleVessel(boatName) {
+  const vessel = state.vessels.find(v=>v.boatName===boatName);
+  if (!vessel) return;
+  const idx = state.selectedVessels.findIndex(v=>v.boatName===boatName);
+  if (idx>=0) {
+    state.selectedVessels.splice(idx,1);
+  } else {
+    if (state.selectedVessels.length>=4) { alert('Maximum 4 vessels. Please deselect one first.'); return; }
+    state.selectedVessels.push(vessel);
+  }
+  const activeFilter = document.querySelector('.filter-chip.active');
+  if (activeFilter) activeFilter.click();
+  else renderVessels(state.vessels);
+}
+
+function goToStep3() {
+  if (state.selectedVessels.length<1) {
+    document.getElementById('err-2').textContent='Please select at least one vessel.';
+    document.getElementById('err-2').style.display='block'; return;
+  }
+  document.getElementById('err-2').style.display='none';
+
+  const summary = document.getElementById('pricing-summary');
+  summary.innerHTML = state.selectedVessels.map(v=>`
+    <div class="summary-card">
+      <div class="summary-header">
+        <div class="summary-name">${displayName(v.boatName)}</div>
+        <div class="summary-price">$${v.totalPrice.toLocaleString()}</div>
+      </div>
+      <div class="summary-body">
+        <div class="summary-meta">${state.duration}hr · ${state.pickupLabel} · Up to ${v.maxCapacity} guests · Margin: $${v.margin.toLocaleString()} (${v.marginPct}%) · Incl. 3.5% processing fee</div>
+        <div class="summary-inclusions">${v.inclusions||'No inclusions data'}</div>
+      </div>
+    </div>`).join('');
+
+  goToStep(3);
+}
+
+async function goToStep4() {
+  // Fetch alternate pricing if selected
+  const altDur = document.getElementById('alt-duration').value;
+  const altPick = document.getElementById('alt-pickup').value;
+  state.altDuration = altDur ? parseInt(altDur) : null;
+  state.altPickup = altPick || null;
+  state.altPricing = {};
+
+  if (state.altDuration || state.altPickup) {
+    for (const v of state.selectedVessels) {
+      const altD = state.altDuration || state.duration;
+      const altP = state.altPickup || state.pickupCode;
+      try {
+        const url = `${PRICING_API}?action=vessels&guests=${state.lead.guests}&pickup=${altP}&duration=${altD}`;
+        const res = await fetch(url);
+        const data = await res.json();
+        const match = (data.vessels||[]).find(av=>av.boatName===v.boatName);
+        if (match) state.altPricing[v.boatName] = match;
+      } catch(e) {}
+    }
+  }
+
+  // Load universal upgrades
+  await loadUniversalUpgrades();
+  goToStep(4);
+}
+
+async function loadUniversalUpgrades() {
+  try {
+    const url = `${PRICING_API}?action=universal&pickup=${state.pickupCode}&duration=${state.duration}`;
+    const res = await fetch(url);
+    const data = await res.json();
+    const upgrades = data.upgrades || [];
+
+    // Panga alert
+    const pangarAlert = document.getElementById('panga-alert');
+    const pangas = upgrades.filter(u => u.category === 'Transportation');
+    if (pangas.length > 0) {
+      pangarAlert.innerHTML = `<div class="panga-alert">⚓ Water taxi recommended for ${state.pickupLabel} pickup. See add-ons below.</div>`;
+    } else {
+      pangarAlert.innerHTML = '';
+    }
+
+    // Render dynamic upgrades below decorations
+    const list = document.getElementById('universal-upgrades-list');
+    const dynamicHTML = upgrades.map(u => {
+      const key = u.optionTitle.replace(/[^a-z0-9]/gi,'');
+      const priceLabel = u.pricingMethod==='Per Person'
+        ? `$${parseFloat(u.price||0).toFixed(0)}/person ($${(parseFloat(u.price||0)*state.lead.guests).toFixed(0)} total)`
+        : `$${parseFloat(u.price||0).toFixed(0)}`;
+      return `<div class="upgrade-item">
+        <div class="upgrade-left">
+          <div class="upgrade-label">${u.upgradeName||u.optionTitle}</div>
+          ${u.description?`<div class="upgrade-desc">${u.description}</div>`:''}
+        </div>
+        <div class="upgrade-price">${priceLabel}</div>
+        <div class="toggle ${state.dynamicUniversal[key]?'on':''}" onclick="toggleDynamicUniversal('${key}',this,'${u.upgradeName||u.optionTitle}',${parseFloat(u.price||0)},'${u.pricingMethod}')"></div>
+      </div>`;
+    }).join('');
+
+    // Keep decorations, add dynamic ones
+    list.innerHTML = `<div class="upgrade-item">
+      <div class="upgrade-left">
+        <div class="upgrade-label">Free Decorations Package</div>
+        <div class="upgrade-desc">Balloons and custom signage included at no charge</div>
+      </div>
+      <div class="upgrade-price">FREE</div>
+      <div class="toggle ${state.universalAddons.decorations?'on':''}" id="toggle-decorations" onclick="toggleUniversal('decorations',this)"></div>
+    </div>${dynamicHTML}`;
+
+  } catch(e) {
+    console.error('Universal upgrades error:', e);
+  }
+}
+
+function toggleUniversal(key, el) {
+  state.universalAddons[key] = !state.universalAddons[key];
+  el.classList.toggle('on');
+}
+
+function toggleDynamicUniversal(key, el, title, price, costType) {
+  if (state.dynamicUniversal[key]) {
+    delete state.dynamicUniversal[key];
+  } else {
+    state.dynamicUniversal[key] = { title, price, costType };
+  }
+  el.classList.toggle('on');
+}
+
+function goToStep5() {
+  const container = document.getElementById('vessel-upgrades');
+  container.innerHTML = state.selectedVessels.map(v => {
+    if (!v.upgrades||v.upgrades.length===0) return `<div class="upgrade-section"><div class="upgrade-vessel-title">${displayName(v.boatName)}</div><p style="font-size:13px;color:#aaa;padding:8px 0;">No vessel-specific upgrades available.</p></div>`;
+    if (!state.vesselAddons[v.boatName]) state.vesselAddons[v.boatName]={};
+    const items = v.upgrades.map(u => {
+      const key = (u.title+'_'+u.price).replace(/[^a-z0-9]/gi,'');
+      const priceLabel = u.costType==='Per Person'
+        ? `$${u.price}/person ($${u.price*state.lead.guests} total)`
+        : `$${u.price}`;
+      return `<div class="upgrade-item">
+        <div class="upgrade-left"><div class="upgrade-label">${u.title}</div></div>
+        <div class="upgrade-price">${priceLabel}</div>
+        <div class="toggle ${state.vesselAddons[v.boatName][key]?'on':''}" onclick="toggleAddon('${v.boatName.replace(/'/g,"\\'")}','${key}',this,${u.price},'${u.costType}','${u.title}')"></div>
+      </div>`;
+    }).join('');
+    return `<div class="upgrade-section"><div class="upgrade-vessel-title">${displayName(v.boatName)}</div>${items}</div>`;
+  }).join('');
+  goToStep(5);
+}
+
+function toggleAddon(boatName, key, el, price, costType, title) {
+  if (!state.vesselAddons[boatName]) state.vesselAddons[boatName]={};
+  if (state.vesselAddons[boatName][key]) { delete state.vesselAddons[boatName][key]; }
+  else { state.vesselAddons[boatName][key]={price,costType,title}; }
+  el.classList.toggle('on');
+}
+
+async function goToStep6() {
+  goToStep(6);
+  document.getElementById('loading-email').style.display='block';
+  document.getElementById('email-output').style.display='none';
+  document.getElementById('err-6').style.display='none';
+
+  try {
+    const pickupLabel = state.pickupLabel;
+    const altPickupLabel = state.altPickup ? {PV:'Marina Vallarta',LM:'Los Muertos Pier',NV:'Nuevo Vallarta',LC:'La Cruz Marina',PM:'Punta Mita'}[state.altPickup] : null;
+
+    const vesselBlocks = state.selectedVessels.map((v,i) => {
+      const addons = state.vesselAddons[v.boatName]||{};
+      const addonLines = Object.values(addons).filter(Boolean).map(a => {
+        const total = a.costType==='Per Person' ? a.price*state.lead.guests : a.price;
+        return `  + ${a.title}: $${total.toLocaleString()}${a.costType==='Per Person'?` ($${a.price}/person)`:''}`;
+      });
+
+      const universalLines = [];
+      if (state.universalAddons.decorations) universalLines.push('  + Free Decorations Package (balloons + signage)');
+      Object.values(state.dynamicUniversal).forEach(u => {
+        const total = u.costType==='Per Person' ? u.price*state.lead.guests : u.price;
+        universalLines.push(`  + ${u.title}: $${total.toLocaleString()}`);
+      });
+
+      let altPricingLine = '';
+      if (state.altPricing[v.boatName]) {
+        const alt = state.altPricing[v.boatName];
+        if (state.altDuration) altPricingLine = `  Alternate duration (${state.altDuration}hr): $${alt.totalPrice.toLocaleString()}`;
+        if (state.altPickup) altPricingLine = `  Alternate pickup (${altPickupLabel}): $${alt.totalPrice.toLocaleString()}`;
+      }
+
+      const desc = VESSEL_DESCRIPTIONS[v.boatName]||'';
+      return `VESSEL ${i+1}: ${displayName(v.boatName)}
+Price: $${v.totalPrice.toLocaleString()} (includes 3.5% processing fee) | ${state.duration} hours | ${pickupLabel} pickup | Up to ${v.maxCapacity} guests
+${altPricingLine}
+Inclusions: ${v.inclusions}
+Description: ${desc}
+${addonLines.length>0?'Vessel upgrades:\n'+addonLines.join('\n'):''}
+${universalLines.length>0?'Universal add-ons:\n'+universalLines.join('\n'):''}`;
+    }).join('\n\n');
+
+    const prompt = `You are Lindsey Corbitt, owner of Vallarta Yacht Company. Write a proposal email that matches your real writing style exactly.
+
+CLIENT:
+- Name: ${state.lead.name}
+- Guests: ${state.lead.guests}
+- Date: ${state.lead.date||'Not specified'}
+- Staying: ${state.lead.location||'Not specified'} (Pickup: ${pickupLabel})
+- Experience: ${state.lead.experience||'Not specified'}
+- Duration: ${state.duration} hours
+- Notes: ${state.lead.notes||'None'}
+
+VESSELS TO INCLUDE:
+${vesselBlocks}
+
+YOUR REAL EMAIL WRITING PATTERNS — study these and match exactly:
+
+PATTERN 1 — Small group, multiple duration options (Nikkira, group of 6):
+"Hi Nikkira,
+
+This is Lindsey with Vallarta Yacht Company, thank you for reaching out!
+
+I put together four options for your group of six on August 8th, all departing from Marina Vallarta. All pricing includes taxes and processing fees. Gratuity is the only separate charge.
+
+A couple of details:
+- 4 hours gets you out to Los Arcos for snorkeling and time in a hidden cove with all the water toys.
+- 6 hours opens up the south coastline with 2-3 stops and more time to explore.
+
+Vessel Options
+Attachments provide additional details and photos of each vessel.
+
+40' Lagoon Catamaran
+A fan favorite vessel and experience. Welcome margaritas, ceviche and guacamole, standard house bar, paddleboards, snorkel gear, fishing rods, and lily pad.
+- 4 Hours: $1,976.85
+- 6 Hours: $2,494.35
+
+47' Fountaine Pajot
+A step up in every way -- premium open bar, private chef with a multi-course meal, all water toys, and a dinghy for easy beach access.
+- 4 Hours: $3,519
+- 6 Hours: $4,491.90
+
+---
+
+Do any of these options resonate with what you were looking for? Happy to answer any questions. A 50% deposit locks in your date and vessel.
+
+Looking forward to hearing from you!
+Best,
+
+Lindsey
+Vallarta Yacht Company
+(980) 655-4737"
+
+PATTERN 2 — Adventure group, detailed inclusions (Simone, group of 15):
+"Hi Simone,
+
+My name is Lindsey with Vallarta Yacht Company, thanks for reaching out! An adventure day on the water for 15 guests out of Marina Vallarta sounds like an incredible time.
+
+I put together four options below that all fit your group size, timeline, and pickup location. Each option brings something different, so I've added my honest take on each to help you find the right fit.
+
+All pricing includes taxes and processing fees. Gratuity is the only separate charge.
+Attachments provide photos and additional information.
+---
+
+40' Lagoon
+Price: $2,753 | 6 Hours | Marina Vallarta Pickup
+The best value on the water for a group your size. The bar setup is solid, the bow lounging net is one of the best on the bay, and snorkel gear is covered for your full group of 15. A great call if you want a full, active day without stretching the budget.
+
+Inclusions:
+- Guacamole with chips, fresh fruit, and approximately one liter of fresh fish ceviche.
+- Beverages include water, ice, juices, soft drinks, and mixers, plus 24 beers, welcome margaritas, and one bottle each of rum, tequila, triple sec, and vodka.
+- On the water: snorkel gear for up to 15 guests, two paddleboards, two fishing rods, a lily pad, and a Bluetooth sound system.
+
+Upgrade available:
++ Classic Mexican Fajitas: $450 ($30/person)
+
+47' Fountaine
+Price: $5,372 | 6 Hours | Marina Vallarta Pickup
+The most fully loaded option on this list, and honestly, for an adventure-focused group, the dinghy alone changes the day. It gets your crew into coves and beaches that most boats simply cannot reach. Add in the private chef, premium bar, and a whale hydrophone you will not find on any other vessel in the bay, and this one stands apart.
+
+Inclusions:
+- A full gourmet breakfast, lunch, or dinner prepared by a private onboard chef with a menu curated fresh for your experience.
+- Beverages include a premium open bar featuring beer, wine, tequila, vodka, mezcal, and handcrafted cocktails.
+- On the water: snorkel gear, two paddleboards, a dinghy, lily pad, floaters, two fishing rods, and a whale hydrophone.
+
+---
+
+Do any of these options resonate with what you are looking for?
+
+Let me know if you have any questions or want to talk through the options.
+
+Best,
+Lindsey
+Vallarta Yacht Company
+(980) 655-4737"
+
+PATTERN 3 — Wedding/sunset, Punta Mita (Dee, group of 30):
+"Hi Dee!
+
+This is Lindsey with Punta Mita Yacht Charters, thank you for reaching out! A private sunset tour for 30 guests on November 28th sounds like a wonderful evening.
+
+I put together three options below that are a great fit for what you are looking for. All include a standard open bar, freshly prepared ceviche, guacamole, a seasonal fruit or veggie platter, and a DJ. All pricing includes taxes and processing fees. Gratuity is the only separate charge.
+
+Vessel Options
+Attachments provide additional details and photos of each vessel.
+
+90' Cheoy Lee | 4 Hours | $6,147.90
+One of the most impressive yachts on Banderas Bay with an expansive bow and sundeck across two levels -- a stunning setting for a sunset experience. Pickup via water taxi from Anclote Beach or Sufi Pier depending on where you are staying in Punta Mita.
+
+---
+
+Do any of these options resonate with what you were looking for? Happy to hop on a quick call to discuss!
+
+Best,
+Lindsey
+Punta Mita Yacht Charters
+(980) 655-4737"
+
+KEY STYLE RULES extracted from all real emails:
+1. Intro is always 1-2 sentences — recap what they asked for, make it feel acknowledged
+2. State the fee line upfront: "All pricing includes taxes and processing fees. Gratuity is the only separate charge."
+3. "Attachments provide additional details and photos of each vessel." always before the vessel list
+4. Vessel name is bold/standalone, then price on next line
+5. For single duration: use "Price: $X | X Hours | Pickup" format
+6. For multiple durations offered: list as bullet points "- 4 Hours: $X" and "- 6 Hours: $X"
+7. POV is 1-3 sentences, specific and honest, uses phrases like "honestly", "for a group your size", "the X alone changes the day"
+8. Inclusions as bullets: food, beverages, on the water — or condensed to one line if straightforward
+9. Upgrades shown as: "Upgrade available: + [name]: $[price]"
+10. Closing is ALWAYS: "Do any of these options resonate with what you were looking for?"
+11. Then: "Let me know if you have any questions or want to talk through the options." OR "Happy to hop on a quick call to discuss!"
+12. Then: "A 50% deposit locks in your date and vessel." (add this line)
+13. Sign off: "Best," then blank line then "Lindsey" then company name then phone
+14. NEVER use em dashes — use -- (double dash) instead
+15. NEVER say "unforgettable" or "once in a lifetime"
+16. NEVER use vessel proper boat names — only the display name provided
+17. NEVER write price ranges — always exact dollar amounts
+18. After all vessels add: "How do these options compare to what you are envisioning for the day? We are happy to make any adjustments -- whether that is a different vessel, duration, or inclusions."
+19. Add: "We have been on the water since 2007 and work exclusively with the top 50 vessels on Banderas Bay to ensure every charter delivers on quality and service."
+
+NOW write the email for this specific client following all patterns above. Use the vessel data provided -- exact prices, exact inclusions. Choose the most fitting format from the patterns above based on the client's situation.
+
+If alternate pricing exists, show both prices as bullet points under the vessel.
+If upgrades are selected, add them as shown in Pattern 2.
+If decorations package is selected, add: "+ Complimentary decorations package (balloons + signage)"
+
+Respond with JSON only, no other text: {"subject":"...","body":"..."}`;
 
     const res = await fetch(CLAUDE_PROXY, {
       method:'POST',
